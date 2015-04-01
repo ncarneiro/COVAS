@@ -9,18 +9,95 @@ and open the template in the editor.
         <title>Collaborative Visualization Tool</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <link rel="stylesheet" type="text/css" href="js/lib/easyui/themes/default/easyui.css">
+        <link rel="stylesheet" type="text/css" href="js/lib/easyui/themes/icon.css">
+
+
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+        <script src="js/lib/easyui/jquery.easyui.min.js"></script>
         <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+
+
         <script src="js/scripts/communication/websocketsManager.js"></script>
         <script src="js/scripts/visualizations/scatterPlot.js"></script>
         <script src="js/scripts/mainClient.js"></script>
+        
+        <style>
+            body {
+                margin: 0px;
+            }
+            .context_menu > *{
+                padding: 3px 2px;
+            }
+            .menu-sep{
+                padding: 0px;
+            }
+            
+            
+
+body {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.dot {
+  
+}
+
+
+        </style>
     </head>
     <body>
+
+        <div class="easyui-panel" style="padding:5px;">
+            <a href="#" class="easyui-menubutton" data-options="menu:'#mm0',iconCls:'icon-file_manager'">Arquivo</a>
+            <a href="#" class="easyui-menubutton" data-options="menu:'#mm1',iconCls:'icon-edit'">Configurar</a>
+            <a href="#" class="easyui-menubutton" data-options="iconCls:'icon-help'">Ajuda</a>
+        </div>
+
+        <div id="mm0" class="context_menu" style="width:200px;">
+            <div data-options="iconCls:'icon-add_package'">Novo Workspace</div>
+            <div data-options="iconCls:'icon-box_front_open'">Abrir Workspace</div>
+            <div class="menu-sep"></div>
+            <div data-options="iconCls:'icon-database_add'">Nova Base</div>
+            <div data-options="iconCls:'icon-database_edit'">Gerenciar Bases</div>
+        </div>
+        
+        <div id="mm1" class="context_menu" style="width:150px;">
+            <div data-options="iconCls:'icon-undo'">Undo</div>
+            <div data-options="iconCls:'icon-redo'">Redo</div>
+            <div class="menu-sep"></div>
+            <div>Cut</div>
+            <div>Copy</div>
+            <div>Paste</div>
+            <div class="menu-sep"></div>
+            <div>
+                <span>Toolbar</span>
+                <div>
+                    <div>Address</div>
+                    <div>Link</div>
+                    <div>Navigation Toolbar</div>
+                    <div>Bookmark Toolbar</div>
+                    <div class="menu-sep"></div>
+                    <div>New Toolbar...</div>
+                </div>
+            </div>
+            <div data-options="iconCls:'icon-remove'">Delete</div>
+            <div>Select All</div>
+        </div>
+
         <input id="btnTeste" type="button" value="Teste" /> 
         <input id="btnQuadrado" type="button" value="Quadrado" />
         <input id="btnCirculo" type="button" value="Circulo" />
         <div id="d3MainVisCanvas"></div>
         <div id="d3MainVisCanvasTeste"></div>
-        
+
     </body>
 </html>

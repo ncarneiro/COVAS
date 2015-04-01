@@ -91,3 +91,28 @@
 .icon-large-chart{
 	background:url('icons/large_chart.png') no-repeat center center;
 }
+
+
+
+
+
+.icon-file_manager{
+	background:url('icons/file_manager.png') no-repeat center center;
+}
+.icon-add_package{
+	background:url('icons/add_package.png') no-repeat center center;
+}
+.icon-box_open{
+	background:url('icons/box_open.png') no-repeat center center;
+}
+.icon-box_front_open{
+	background:url('icons/box_front_open.png') no-repeat center center;
+}
+.icon-database_add{
+	background:url('icons/database_add.png') no-repeat center center;
+}
+.icon-database_edit{
+	background:url('icons/database_edit.png') no-repeat center center;
+}
+
+

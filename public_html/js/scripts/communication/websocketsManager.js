@@ -88,8 +88,6 @@ WebSocketManager.prototype.send = function(act, data){
 };
 
 
-//-----------------------  Constantes ------------------------
-
 WebSocketManager.UPDATE = "upd";
 WebSocketManager.CHAT = "chat";
 WebSocketManager.TESTE = "test";
