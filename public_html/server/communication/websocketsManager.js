@@ -41,7 +41,7 @@ var WebSocketManager = function () {
                 aceito = true;
             }
         }
-        socket.send({obj: {id: id}, act: "id"});
+        socket.send(JSON.stringify({obj: {id: id}, act: "id"}));
         socket.id = id;
         self.sokets[id] = socket;
         console.log("usuário conectado com id: " + id);
@@ -129,5 +129,6 @@ WebSocketManager.prototype.broadcast = function (act, data) {
 WebSocketManager.UPDATE = "upd";
 WebSocketManager.CHAT = "chat";
 WebSocketManager.TESTE = "test";
+WebSocketManager.AUTH = "auth";
 
 exports.WebSocketManager = WebSocketManager;
