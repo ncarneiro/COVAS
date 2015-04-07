@@ -4,6 +4,8 @@
  * and open the template in the editor.
  */
 
+
+
 //----------------------------  User ------------------------------------
 var usersHash = [];
 var User = (function () {
@@ -23,7 +25,6 @@ var User = (function () {
         }
 
         this.nome = this.nome || "Usuario" + Math.floor((Math.random() * 999));
-        this.id = generateID();
         this.myworkspaces = [];
         this.sharedworkspaces = [];
         
@@ -31,13 +32,14 @@ var User = (function () {
     });
 })();
 
+//Método Estático de usuário para encontrar um usuário.
 User.findUserByEmail = function(email){
     return usersHash[email];
 };
+User.modelName = "User";
 //----------------------------  User ------------------------------------
 
 
-
-Models = [User];
-Models.User = 0;
+var Models = {};
+Models[User.modelName] = User;
 exports.Models = Models;

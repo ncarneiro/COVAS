@@ -1,15 +1,17 @@
 
 
+var auth = require("./auth/AuthenticationManager.js").authManager;
+
 function runStaticServer(port) {
     var express = require("express");
     var multer = require('multer');
     var serveStatic = require('serve-static');
     var session = require('express-session');
-    var path = require('path')
+    var path = require('path');
     var app = express();
     var done = false;
 
-    var bodyParser = require('body-parser')
+    var bodyParser = require('body-parser');
 
 
 
@@ -32,13 +34,16 @@ function runStaticServer(port) {
 
     //FIXME USO Teste!! não está seguro!!!
     app.post("/logincred", function (req, res) {
-        if (req.body.email === "gustavo" && req.body.senha === "senha") {
-            req.session.logged = true;
-            req.session.email = req.body.email;
-            res.redirect('/dashboard');
-        } else {
-            res.redirect('/login');
-        }
+        auth.authenticate(req.body.email, req.body.senha, function (authenticate) {
+            if (authenticate) {
+                req.session.logged = true;
+                req.session.email = req.body.email;
+                res.redirect('/dashboard');
+            } else {
+                res.redirect('/login');
+            }
+        });
+
     });
 
     app.use(function (req, res, next) {
@@ -65,7 +70,7 @@ function runStaticServer(port) {
         });
     });
 
-    app.use(multer({dest: './uploads/',
+    app.use(multer({dest: './database/storage/temp',
         rename: function (fieldname, filename) {
             return filename + Date.now();
         },

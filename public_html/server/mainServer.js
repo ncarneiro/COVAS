@@ -14,35 +14,35 @@
     //var fs = require('fs');
 
     //importa o módulo de comunicação com a base de dados.
-    var database = require('./database/simpleFileDatabase.js');
-    
-    //importa os modelos do projeto.
-    var models = require('./model/Models.js');
+    global.database = require('./database/Database.js');
 
+    global.database.loadDatabase(function () {
+        //Inicia o servidor de páginas estáticas WEb
+        require('./staticWebServer.js').runStaticServer();
+        
+        var socketManager = new WebSocketManager();
 
-    //Inicia o servidor de páginas estáticas WEb
-    require('./staticWebServer.js').runStaticServer();
+        //Adiciona a funcão de autenticação do usuário na comunicação via socket.
+        socketManager.addFoward(WebSocketManager.AUTH, function (msg) {
+            socketManager.broadcast(WebSocketManager.UPDATE, msg);
+        });
 
+        //Função apenas usa o broadcast, mas deve ser desenvolvida outras funcionalidades
+        socketManager.addFoward(WebSocketManager.UPDATE, function (msg) {
+            socketManager.broadcast(WebSocketManager.UPDATE, msg);
+        });
 
-    var socketManager = new WebSocketManager();
-    
-    //Adiciona a funcão de autenticação do usuário na comunicação via socket.
-    socketManager.addFoward(WebSocketManager.AUTH, function(msg){
-        socketManager.broadcast(WebSocketManager.UPDATE, msg);
+        //Função apenas usa o broadcast, mas deve ser desenvolvida outras funcionalidades
+        socketManager.addFoward(WebSocketManager.TESTE, function (msg) {
+            socketManager.broadcast(WebSocketManager.TESTE, msg);
+        });
     });
-    
-    //Função apenas usa o broadcast, mas deve ser desenvolvida outras funcionalidades
-    socketManager.addFoward(WebSocketManager.UPDATE, function(msg){
-        socketManager.broadcast(WebSocketManager.UPDATE, msg);
-    });
-    
-    //Função apenas usa o broadcast, mas deve ser desenvolvida outras funcionalidades
-    socketManager.addFoward(WebSocketManager.TESTE, function(msg){
-        socketManager.broadcast(WebSocketManager.TESTE, msg);
-    });
-    
-    
-    
-    
+
+
+
+
+
+
+
 
 })();
