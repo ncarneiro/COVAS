@@ -24,7 +24,7 @@
 
         //Adiciona a funcão de autenticação do usuário na comunicação via socket.
         socketManager.addFoward(WebSocketManager.AUTH, function (msg) {
-            socketManager.broadcast(WebSocketManager.UPDATE, msg);
+            
         });
 
         //Função apenas usa o broadcast, mas deve ser desenvolvida outras funcionalidades

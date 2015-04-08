@@ -8,22 +8,28 @@
 
 var database = require("./Database.js");
 
-database.loadDatabase(function(User){
+database.loadDatabase(function(){
     
-    gustavo = new User({nome: "Gustavo2", email:"meuemail2@email.com", senha:"senha"});
+    var gustavo = new database.models.User({nome: "Gustavo", email:"meuemail@email.com", senha:"senha"});
+    
+    
+    var projeto1 = new database.models.Workspace({nome:"projeto1", criador: gustavo._id});
+    projeto1.save(function(err, pro){
+        if (err) return console.error(err);
+        
+        console.log(pro);
+        console.log("saved");
+    });
+    
+    
+    gustavo._projetos.push(projeto1._id);
+    
     gustavo.save(function(err, gustavo){
         if (err) return console.error(err);
         
         console.log(gustavo);
         console.log("saved");
     });
-    
-    setTimeout(function(){
-        User.find({ nome: "Gustavo" }, function(err, gustavo){
-            console.log("encontrado:");
-            console.log(gustavo);
-        });
-    }, 1000);
 });
 
 

@@ -41,6 +41,10 @@ var WebSocketManager = function () {
                 aceito = true;
             }
         }
+         
+        
+        
+        
         socket.send(JSON.stringify({obj: {id: id}, act: "id"}));
         socket.id = id;
         self.sokets[id] = socket;

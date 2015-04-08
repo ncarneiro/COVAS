@@ -11,9 +11,13 @@ function runStaticServer(port) {
     var app = express();
     var done = false;
 
+    var ejs = require('ejs');
+
     var bodyParser = require('body-parser');
 
-
+    app.set("view engine", "html");
+    app.engine('html', ejs.renderFile);
+    app.set("views", [path.resolve("./../client/pages"), path.resolve("./../client")]);
 
     app.use(session({
         secret: '12##labvis##21',
@@ -59,7 +63,20 @@ function runStaticServer(port) {
     app.use(serveStatic('./../client'));
 
     app.get("/dashboard", function (req, res) {
-        res.sendFile(path.resolve("./../client/index.html"));
+//        res.sendFile(path.resolve("./../client/index.html"));
+        global.database.models.User.findOne({email: req.session.email}, function(err, user){
+            if(err){
+                console.log("erro ao ler usuário na base de dados.")
+            }else{
+                var dados_usuario = {};
+                dados_usuario.nome = user.nome;
+                dados_usuario.email = user.email;
+                
+                res.render("index.html", {user: dados_usuario});
+            }
+        });
+
+        
     });
 
     app.get("/logout", function (req, res) {

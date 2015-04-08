@@ -61,7 +61,7 @@ and open the template in the editor.
             <a href="#" class="easyui-menubutton" data-options="menu:'#mm0',iconCls:'icon-file_manager'">Arquivo</a>
             <a href="#" class="easyui-menubutton" data-options="menu:'#mm1',iconCls:'icon-edit'">Configurar</a>
             <a href="#" class="easyui-menubutton" data-options="iconCls:'icon-help'">Ajuda</a>
-            <a href="/logout" class="easyui-button" style="float: right;">Sair</a>
+            <a id="menuUsuario" href="/logout" class="easyui-menubutton" data-options="menu:'#mm2'" style="float: right;"><%= user.nome %></a>
         </div>
 
         <div id="mm0" class="context_menu" style="width:200px;">
@@ -94,6 +94,11 @@ and open the template in the editor.
             <div data-options="iconCls:'icon-remove'">Delete</div>
             <div>Select All</div>
         </div>
+        
+        <div id="mm2" class="context_menu" style="width:80px;">
+            <div>Perfil</div>
+            <div>Sair</div>
+        </div>
 
 
         <div id="windowFiles" class="easyui-window" title="File Manager" data-options="modal:true,closed:true,iconCls:'icon-save'" style="width:500px;height:200px;padding:10px;">
@@ -108,30 +113,11 @@ and open the template in the editor.
 
         </div>
 
-        <input id="btnTeste" type="button" value="Teste" /> 
+        
         <input id="btnQuadrado" type="button" value="Quadrado" />
         <input id="btnCirculo" type="button" value="Circulo" />
-        <div id="d3MainVisCanvas"></div>
         <div id="d3MainVisCanvasTeste"></div>
 
-        <script>
-            $(document).ready(function () {
-
-                $('#uploadForm').submit(function () {
-
-                    $(this).ajaxSubmit({
-                        error: function (xhr) {
-                            status('Error: ' + xhr.status);
-                        },
-                        success: function (response) {
-                            console.log(response);
-                        }
-                    });
-                    //Very important line, it disable the page refresh.
-                    return false;
-                });
-            });
-        </script>
-
+       
     </body>
 </html>

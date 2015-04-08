@@ -11,7 +11,6 @@ var mongoose = require('mongoose');
 
 var callback;
 
-console.log("fora");
 
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:*************'));
@@ -19,17 +18,32 @@ db.once('open', function () {
 
     exports.models = {};
     
-    console.log("open");
+    console.log("database opened.");
     var userSchema = mongoose.Schema({
-        nome: String,
-        email: String,
-        senha: String
+        nome: {type: String, required: true},
+        email: {type: String, required: true, unique: true},
+        senha: String,
+        _projetos: [{type: mongoose.Schema.Types.ObjectId, ref:"Workspace"}],
+        _projetosCompartilhados: []
     });
-
     var User = mongoose.model('User', userSchema);
     
-    exports.models.User = User;
     
+    var workspaceSchema = mongoose.Schema({
+        nome: String,
+        visualizacoes: [],
+        bases: [String],
+        criador: {type: mongoose.Schema.Types.ObjectId, ref:"User"},
+        colaboradores: [{type: mongoose.Schema.Types.ObjectId, ref:"User"}]
+    });
+
+    var Workspace = mongoose.model('Workspace', workspaceSchema);
+    
+    
+    
+    
+    exports.models.User = User;
+    exports.models.Workspace = Workspace;
     
     
     callback();
