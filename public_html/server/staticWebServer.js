@@ -64,19 +64,18 @@ function runStaticServer(port) {
 
     app.get("/dashboard", function (req, res) {
 //        res.sendFile(path.resolve("./../client/index.html"));
-        global.database.models.User.findOne({email: req.session.email}, function(err, user){
-            if(err){
-                console.log("erro ao ler usuário na base de dados.")
-            }else{
+        global.database.models.User.findOne({email: req.session.email}, function (err, user) {
+            if (err) {
+                console.log("erro ao ler usuário na base de dados.");
+            } else {
                 var dados_usuario = {};
                 dados_usuario.nome = user.nome;
                 dados_usuario.email = user.email;
-                
                 res.render("index.html", {user: dados_usuario});
             }
         });
 
-        
+
     });
 
     app.get("/logout", function (req, res) {
@@ -85,6 +84,29 @@ function runStaticServer(port) {
         req.session.destroy(function () {
             res.redirect('/login');
         });
+    });
+
+    app.post("/projetos", function (req, res) {
+        console.log("projetos requisitado.");
+        global.database.models.User
+                .findOne({email: req.session.email})
+                .populate("_projetos", "nome")
+                .exec(function (err, usuario) {
+                    if (err) {
+                        console.log("erro ao popular projetos do usuário");
+                    }
+                    console.log(usuario);
+                    var projetos = [];
+                    for(var i=0; i<usuario._projetos.length; i++){
+                        projetos.push({});
+                        projetos[i].text = usuario._projetos[i].nome;
+                        
+                    }
+                    
+                    res.end(JSON.stringify(projetos));
+                });
+
+
     });
 
     app.use(multer({dest: './database/storage/temp',

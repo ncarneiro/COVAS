@@ -23,6 +23,7 @@ and open the template in the editor.
         <script src="public/js/scripts/communication/websocketsManager.js"></script>
         <script src="public/js/scripts/visualizations/scatterPlot.js"></script>
         <script src="public/js/scripts/mainClient.js"></script>
+        <script src="public/js/scripts/dommanipulations/projetos.js"></script>
 
         <style>
             body {
@@ -65,7 +66,7 @@ and open the template in the editor.
         </div>
 
         <div id="mm0" class="context_menu" style="width:200px;">
-            <div data-options="iconCls:'icon-add_package'">Novo Workspace</div>
+            <div id="btnProjetos" data-options="iconCls:'icon-add_package'">Novo Workspace</div>
             <div data-options="iconCls:'icon-box_front_open'">Abrir Workspace</div>
             <div class="menu-sep"></div>
             <div data-options="iconCls:'icon-database_add'" onclick="$('#windowFiles').window('open');">Nova Base</div>
@@ -102,16 +103,26 @@ and open the template in the editor.
 
 
         <div id="windowFiles" class="easyui-window" title="File Manager" data-options="modal:true,closed:true,iconCls:'icon-save'" style="width:500px;height:200px;padding:10px;">
-            Arraste e solte um arquivo para fazer o upload.<br>
-            <form id="uploadForm"
+            <div class="easyui-layout" data-options="fit:true">
+                <div data-options="region:'west', split:true" style="width: 160px">
+                    <div style="text-align: center;margin: 5px 0px"><a href="#" class="easyui-linkbutton">Novo</a></div>
+                    <ul id='treeProjetos'>
+                        
+                    </ul>
+                </div>
+                <div data-options="region:'center', split:true"></div>
+            </div>
+            <!--<form id="uploadForm"
                   enctype="multipart/form-data"
                   action="/uploadfile"
                   method="post">
                 <input type="file" name="base" />
                 <input type="submit" value="Upload Image" name="submit">
-            </form>
+            </form>-->
 
         </div>
+        
+        <div id="dialogsContent"></div>
 
         
         <input id="btnQuadrado" type="button" value="Quadrado" />
