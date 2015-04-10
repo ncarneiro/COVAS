@@ -10,10 +10,10 @@ var database = require("./Database.js");
 
 database.loadDatabase(function(){
     
-    var gustavo = new database.models.User({nome: "Gustavo", email:"meuemail@email.com", senha:"senha"});
+    var gustavo = new database.models.User({name: "Gustavo", email:"meuemail@email.com", password:"senha"});
     
     
-    var projeto1 = new database.models.Workspace({nome:"projeto1", criador: gustavo._id});
+    var projeto1 = new database.models.Workspace({name:"projeto1", _owner: gustavo._id});
     projeto1.save(function(err, pro){
         if (err) return console.error(err);
         
@@ -22,7 +22,7 @@ database.loadDatabase(function(){
     });
     
     
-    gustavo._projetos.push(projeto1._id);
+    gustavo._workspaces.push(projeto1._id);
     
     gustavo.save(function(err, gustavo){
         if (err) return console.error(err);

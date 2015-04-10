@@ -14,12 +14,11 @@ var AuthenticationManager = {};
 AuthenticationManager.authenticate = function (email, senha, callback) {
     
     
-    global.database.models.User.find({ email: email }, function(err, user){
-        console.log("funcao dentro.");
+    global.database.models.User.findOne({ email: email }, function(err, user){
         if(err) {
             console.log(email+" não autenticado");
             callback(false);
-        }else if(user[0].senha === senha){
+        }else if(user.password === senha){
             console.log(email+" autenticado");
             callback(true);
         }else{

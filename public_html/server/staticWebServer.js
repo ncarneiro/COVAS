@@ -69,7 +69,7 @@ function runStaticServer(port) {
                 console.log("erro ao ler usuário na base de dados.");
             } else {
                 var dados_usuario = {};
-                dados_usuario.nome = user.nome;
+                dados_usuario.nome = user.name;
                 dados_usuario.email = user.email;
                 res.render("index.html", {user: dados_usuario});
             }
@@ -90,17 +90,28 @@ function runStaticServer(port) {
         console.log("projetos requisitado.");
         global.database.models.User
                 .findOne({email: req.session.email})
-                .populate("_projetos", "nome")
+                .deepPopulate("_workspaces._databases._visualizations")
                 .exec(function (err, usuario) {
                     if (err) {
                         console.log("erro ao popular projetos do usuário");
                     }
-                    console.log(usuario);
+                    //console.log(usuario);
                     var projetos = [];
-                    for(var i=0; i<usuario._projetos.length; i++){
+                    for(var i=0; i<usuario._workspaces.length; i++){
                         projetos.push({});
-                        projetos[i].text = usuario._projetos[i].nome;
-                        
+                        projetos[i].text = usuario._workspaces[i].name;
+                        projetos[i].children = [];
+                        for(var j=0; j<usuario._workspaces[i]._databases.length; j++){
+                            var baseaux = usuario._workspaces[i]._databases[j];
+                            projetos[i].children.push({});
+                            projetos[i].children[j].text = baseaux.name;
+                            projetos[i].children[j].children = [];
+                            
+                            for(var k=0; k<baseaux._visualizations.length; k++){
+                                projetos[i].children[j].children.push({});
+                                projetos[i].children[j].children[k].text = baseaux._visualizations[k].name;
+                            }
+                        }
                     }
                     
                     res.end(JSON.stringify(projetos));
