@@ -14,6 +14,8 @@ function runStaticServer(port) {
     var ejs = require('ejs');
 
     var bodyParser = require('body-parser');
+    
+    var facade = require('./database/modelFacade.js');
 
     app.set("view engine", "html");
     app.engine('html', ejs.renderFile);
@@ -63,19 +65,9 @@ function runStaticServer(port) {
     app.use(serveStatic('./../client'));
 
     app.get("/dashboard", function (req, res) {
-//        res.sendFile(path.resolve("./../client/index.html"));
-        global.database.models.User.findOne({email: req.session.email}, function (err, user) {
-            if (err) {
-                console.log("erro ao ler usuário na base de dados.");
-            } else {
-                var dados_usuario = {};
-                dados_usuario.nome = user.name;
-                dados_usuario.email = user.email;
-                res.render("index.html", {user: dados_usuario});
-            }
+        facade.User.findUserByEmail(req.session.email, "name email", function(user){
+            res.render("index.html", {user: user});
         });
-
-
     });
 
     app.get("/logout", function (req, res) {
@@ -87,37 +79,12 @@ function runStaticServer(port) {
     });
 
     app.post("/projetos", function (req, res) {
-        console.log("projetos requisitado.");
-        global.database.models.User
-                .findOne({email: req.session.email})
-                .deepPopulate("_workspaces._databases._visualizations")
-                .exec(function (err, usuario) {
-                    if (err) {
-                        console.log("erro ao popular projetos do usuário");
-                    }
-                    //console.log(usuario);
-                    var projetos = [];
-                    for(var i=0; i<usuario._workspaces.length; i++){
-                        projetos.push({});
-                        projetos[i].text = usuario._workspaces[i].name;
-                        projetos[i].children = [];
-                        for(var j=0; j<usuario._workspaces[i]._databases.length; j++){
-                            var baseaux = usuario._workspaces[i]._databases[j];
-                            projetos[i].children.push({});
-                            projetos[i].children[j].text = baseaux.name;
-                            projetos[i].children[j].children = [];
-                            
-                            for(var k=0; k<baseaux._visualizations.length; k++){
-                                projetos[i].children[j].children.push({});
-                                projetos[i].children[j].children[k].text = baseaux._visualizations[k].name;
-                            }
-                        }
-                    }
-                    
-                    res.end(JSON.stringify(projetos));
-                });
-
-
+        facade.User.findUserByEmail(req.session.email, 
+        "_workspaces._databases._visualizations _sharedWorkspaces._databases._visualizations",
+        function(usuario){
+            var userTree = facade.User.parseUserToTree(usuario);
+            res.end(JSON.stringify(userTree));
+        });
     });
 
     app.use(multer({dest: './database/storage/temp',

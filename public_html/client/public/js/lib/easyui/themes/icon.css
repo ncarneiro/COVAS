@@ -116,3 +116,21 @@
 }
 
 
+.icon-add_database{
+	background:url('icons/database_add.png') no-repeat center center;
+}
+.icon-add_project{
+	background:url('icons/project_add.png') no-repeat center center;
+}
+.icon-add_visualization{
+	background:url('icons/bar_chart_add.png') no-repeat center center;
+}
+.icon-database{
+	background:url('icons/database.png') no-repeat center center;
+}
+.icon-project{
+	background:url('icons/project.png') no-repeat center center;
+}
+.icon-visualization{
+	background:url('icons/bar_chart.png') no-repeat center center;
+}

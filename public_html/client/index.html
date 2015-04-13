@@ -62,14 +62,16 @@ and open the template in the editor.
             <a href="#" class="easyui-menubutton" data-options="menu:'#mm0',iconCls:'icon-file_manager'">Arquivo</a>
             <a href="#" class="easyui-menubutton" data-options="menu:'#mm1',iconCls:'icon-edit'">Configurar</a>
             <a href="#" class="easyui-menubutton" data-options="iconCls:'icon-help'">Ajuda</a>
-            <a id="menuUsuario" href="/logout" class="easyui-menubutton" data-options="menu:'#mm2'" style="float: right;"><%= user.nome %></a>
+            <a id="menuUsuario" href="/logout" class="easyui-menubutton" data-options="menu:'#mm2'" style="float: right;">
+                <%= user.name %>
+            </a>
         </div>
 
         <div id="mm0" class="context_menu" style="width:200px;">
             <div id="btnProjetos" data-options="iconCls:'icon-add_package'">Novo Workspace</div>
             <div data-options="iconCls:'icon-box_front_open'">Abrir Workspace</div>
             <div class="menu-sep"></div>
-            <div data-options="iconCls:'icon-database_add'" onclick="$('#windowFiles').window('open');">Nova Base</div>
+            <div data-options="iconCls:'icon-database_add'">Nova Base</div>
             <div data-options="iconCls:'icon-database_edit'">Gerenciar Bases</div>
         </div>
 
@@ -102,10 +104,15 @@ and open the template in the editor.
         </div>
 
 
-        <div id="windowFiles" class="easyui-window" title="File Manager" data-options="modal:true,closed:true,iconCls:'icon-save'" style="width:500px;height:200px;padding:10px;">
+        <div id="windowFiles" class="easyui-window" 
+             title="File Manager" data-options="modal:true,closed:true,iconCls:'icon-save'" 
+             style="-webkit-user-select: none;width:800px;height:600px;padding:10px;">
+            
             <div class="easyui-layout" data-options="fit:true">
                 <div data-options="region:'west', split:true" style="width: 160px">
-                    <div style="text-align: center;margin: 5px 0px"><a href="#" class="easyui-linkbutton">Novo</a></div>
+                    <!--<div style="text-align: center;margin: 5px 0px">
+                        <a id="btnNovoProjeto" href="#" class="easyui-linkbutton" style="width: 90%;">Novo</a>
+                    </div>-->
                     <ul id='treeProjetos'>
                         
                     </ul>
@@ -122,7 +129,36 @@ and open the template in the editor.
 
         </div>
         
-        <div id="dialogsContent"></div>
+        
+        <div id="menuWorkFolder" class="easyui-menu" style="width:160px;">
+            <div>Novo Projeto</div>
+        </div>
+        <div id="menuWorkspaces" class="easyui-menu" style="width:160px;">
+            <div>Nova Base</div>
+            <div class="menu-sep"></div>
+            <div>Alterar Nome</div>
+            <div>Excluir Projeto</div>
+            
+        </div>
+        
+        <div id="menuDatabases" class="easyui-menu" style="width:160px;">
+            <div>
+                <span>Nova Visão</span>
+                <div>
+                    <div>Scatter Plot</div>
+                </div>
+            </div>
+            <div class="menu-sep"></div>
+            <div>Alterar Nome</div>
+            <div>Clonar Base</div>
+            <div>Excluir Base</div>
+        </div>
+        
+        <div id="menuVisualizations" class="easyui-menu" style="width:160px;">
+            <div>Alternar Nome</div>
+            <div>Clonar Visão</div>
+            <div>Excluir Visualização</div>
+        </div>
 
         
         <input id="btnQuadrado" type="button" value="Quadrado" />

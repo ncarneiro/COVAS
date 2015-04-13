@@ -1,52 +1,62 @@
 
 
-(function($){
-    
-    
-    $(document).ready(function(){
-        
-        $("#btnProjetos").click(function(){
-            /*
-            $.ajax("/projetos", {
-                dataType: "html"
-            }).done(function(data){
-                
-                $(data).appendTo("#dialogsContent").window({
-                    width: 500,
-                    height: 200,
-                    title: "Projetos",
-                    modal: true,
-                    maximizable: false,
-                    minimizable: false,
-                    collapsible: false
-                });
-//                $(data).window({
-//                    width: 500,
-//                    height: 200,
-//                    modal: true
-//                }).appendTo($("#dialogsContent"));
-                
-                
-//                $("#dialogsContent").html(data);
-//                $("#windowFiles").window({
-//                    width: 500,
-//                    height: 200,
-//                    modal: true,
-//                    closed: true
-//                });
-            });*/
-            
-            
-            
+(function ($) {
+
+
+    $(document).ready(function () {
+
+        $("#btnProjetos").click(function () {
+
             $("#treeProjetos").tree({
-                url:'/projetos'
+                url: '/projetos',
+                onContextMenu: function (e, node) {
+                    e.preventDefault();
+                    switch (node.iconCls) {
+                        case 'icon-database':
+                            $("#menuDatabases").menu("show", {
+                                left: e.pageX,
+                                top: e.pageY
+                            });
+                            break;
+
+                        case 'icon-project':
+                            $("#menuWorkspaces").menu("show", {
+                                left: e.pageX,
+                                top: e.pageY
+                            });
+                            break;
+
+                        case 'icon-visualization':
+                            $("#menuVisualizations").menu("show", {
+                                left: e.pageX,
+                                top: e.pageY
+                            });
+                            break;
+
+                        default:
+                            if (node.attributes.type === "myworkspaces") {
+                                $("#menuWorkFolder").menu("show", {
+                                    left: e.pageX,
+                                    top: e.pageY
+                                });
+                            }
+                    }
+
+                }
             });
-            
+            $('#windowFiles').window('open');
+
         });
-        
-        
+
+        $("#btnNovoProjeto").click(function () {
+            var btn = $(this);
+            var position = btn.offset();
+            var h = $(this).height();
+
+        });
+
     });
-    
-    
-    
+
+
+
 })(jQuery);
