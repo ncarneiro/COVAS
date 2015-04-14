@@ -18,14 +18,14 @@ db.on('error', console.error.bind(console, 'connection error:*************'));
 db.once('open', function () {
 
     exports.models = {};
-    
+
     console.log("database opened.");
     var userSchema = mongoose.Schema({
         name: {type: String, required: true},
         email: {type: String, required: true, unique: true},
         password: String,
-        _workspaces: [{type: mongoose.Schema.Types.ObjectId, ref:"Workspace"}],
-        _sharedWorkspaces: [{type: mongoose.Schema.Types.ObjectId, ref:"Workspace"}]
+        _workspaces: [{type: mongoose.Schema.Types.ObjectId, ref: "Workspace"}],
+        _sharedWorkspaces: [{type: mongoose.Schema.Types.ObjectId, ref: "Workspace"}]
     });
     userSchema.plugin(deepPopulate, {
         whitelist: [
@@ -37,45 +37,58 @@ db.once('open', function () {
         ]
     });
     var User = mongoose.model('User', userSchema);
-    
-    
+
+
     var workspaceSchema = mongoose.Schema({
         name: String,
-        _databases: [{type: mongoose.Schema.Types.ObjectId, ref:"Database"}],
-        _owner: {type: mongoose.Schema.Types.ObjectId, ref:"User"},
-        _collaborators: [{type: mongoose.Schema.Types.ObjectId, ref:"User"}]
+        _databases: [{type: mongoose.Schema.Types.ObjectId, ref: "Database"}],
+        _owner: {type: mongoose.Schema.Types.ObjectId, ref: "User"},
+        _collaborators: [{type: mongoose.Schema.Types.ObjectId, ref: "User"}]
+    });
+    workspaceSchema.pre('remove', function (next) {
+        console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaa$$");
+        Database.remove({_workspace: this._id}, function(err){
+            if(err) console.log('erro ao excluir bases');
+        });
+        next();
     });
     var Workspace = mongoose.model('Workspace', workspaceSchema);
-    
-    
+
+
     var databaseSchema = mongoose.Schema({
         name: String,
         dataDir: String,
-        _visualizations: [{type: mongoose.Schema.Types.ObjectId, ref:"Visualization"}],
-        _workspace: {type: mongoose.Schema.Types.ObjectId, ref:"Workspace"}
+        _visualizations: [{type: mongoose.Schema.Types.ObjectId, ref: "Visualization"}],
+        _workspace: {type: mongoose.Schema.Types.ObjectId, ref: "Workspace"}
+    });
+    databaseSchema.pre('remove', function (next) {
+        Visualization.remove({_database: this._id}, function(err){
+            if(err) console.log('erro ao excluir visualizações');
+            console.log("visualizações dependentes excluidas");
+        });
+        next();
     });
     var Database = mongoose.model('Database', databaseSchema);
-    
-    
+
+
     var visualizationSchema = mongoose.Schema({
         name: String,
         state: String,
-        _database: {type: mongoose.Schema.Types.ObjectId, ref:"Database"},
-        _workspace: {type: mongoose.Schema.Types.ObjectId, ref:"Workspace"}
+        _database: {type: mongoose.Schema.Types.ObjectId, ref: "Database"},
+        _workspace: {type: mongoose.Schema.Types.ObjectId, ref: "Workspace"}
     });
-
     var Visualization = mongoose.model('Visualization', visualizationSchema);
-    
-    
-    
+
+
+
     exports.models.User = User;
     exports.models.Workspace = Workspace;
     exports.models.Database = Database;
     exports.models.Visualization = Visualization;
-    
-    
+
+
     callback();
-    
+
 });
 
 ;
@@ -86,6 +99,6 @@ exports.loadDatabase = function (cFunc) {
 
 };
 
-exports.getModel = function(modelName){
+exports.getModel = function (modelName) {
     return exports.models[modelName];
 };

@@ -97,7 +97,7 @@ and open the template in the editor.
             <div data-options="iconCls:'icon-remove'">Delete</div>
             <div>Select All</div>
         </div>
-        
+
         <div id="mm2" class="context_menu" style="width:80px;">
             <div>Perfil</div>
             <div onclick="location.replace('/logout')">Sair</div>
@@ -107,14 +107,14 @@ and open the template in the editor.
         <div id="windowFiles" class="easyui-window" 
              title="File Manager" data-options="modal:true,closed:true,iconCls:'icon-save'" 
              style="-webkit-user-select: none;width:800px;height:600px;padding:10px;">
-            
+
             <div class="easyui-layout" data-options="fit:true">
                 <div data-options="region:'west', split:true" style="width: 160px">
                     <!--<div style="text-align: center;margin: 5px 0px">
                         <a id="btnNovoProjeto" href="#" class="easyui-linkbutton" style="width: 90%;">Novo</a>
                     </div>-->
                     <ul id='treeProjetos'>
-                        
+
                     </ul>
                 </div>
                 <div data-options="region:'center', split:true"></div>
@@ -128,19 +128,20 @@ and open the template in the editor.
             </form>-->
 
         </div>
-        
-        
+
+
         <div id="menuWorkFolder" class="easyui-menu" style="width:160px;">
             <div id="btnNovoProjeto">Novo Projeto</div>
         </div>
+
         <div id="menuWorkspaces" class="easyui-menu" style="width:160px;">
             <div>Nova Base</div>
             <div class="menu-sep"></div>
             <div>Alterar Nome</div>
-            <div>Excluir Projeto</div>
-            
+            <div id='btnExluirProjeto'>Excluir Projeto</div>
+
         </div>
-        
+
         <div id="menuDatabases" class="easyui-menu" style="width:160px;">
             <div>
                 <span>Nova Visão</span>
@@ -153,18 +154,18 @@ and open the template in the editor.
             <div>Clonar Base</div>
             <div>Excluir Base</div>
         </div>
-        
+
         <div id="menuVisualizations" class="easyui-menu" style="width:160px;">
             <div>Alternar Nome</div>
             <div>Clonar Visão</div>
             <div>Excluir Visualização</div>
         </div>
 
-        
+
         <input id="btnQuadrado" type="button" value="Quadrado" />
         <input id="btnCirculo" type="button" value="Circulo" />
         <div id="d3MainVisCanvasTeste"></div>
 
-       
+
     </body>
 </html>
