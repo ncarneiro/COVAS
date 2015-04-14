@@ -15,7 +15,7 @@ function runStaticServer(port) {
 
     var bodyParser = require('body-parser');
     
-    var facade = require('./database/modelFacade.js');
+    var ajax = require('./communication/ajaxActions.js');
 
     app.set("view engine", "html");
     app.engine('html', ejs.renderFile);
@@ -63,29 +63,10 @@ function runStaticServer(port) {
 
 
     app.use(serveStatic('./../client'));
-
-    app.get("/dashboard", function (req, res) {
-        facade.User.findUserByEmail(req.session.email, "name email", function(user){
-            res.render("index.html", {user: user});
-        });
-    });
-
-    app.get("/logout", function (req, res) {
-        req.session.logged = false;
-        req.session.email = undefined;
-        req.session.destroy(function () {
-            res.redirect('/login');
-        });
-    });
-
-    app.post("/projetos", function (req, res) {
-        facade.User.findUserByEmail(req.session.email, 
-        "_workspaces._databases._visualizations _sharedWorkspaces._databases._visualizations",
-        function(usuario){
-            var userTree = facade.User.parseUserToTree(usuario);
-            res.end(JSON.stringify(userTree));
-        });
-    });
+    
+    
+    ajax.registerAjaxActions(app);
+    
 
     app.use(multer({dest: './database/storage/temp',
         rename: function (fieldname, filename) {

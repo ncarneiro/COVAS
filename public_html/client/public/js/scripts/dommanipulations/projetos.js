@@ -8,7 +8,7 @@
         $("#btnProjetos").click(function () {
 
             $("#treeProjetos").tree({
-                url: '/projetos',
+                url: '/dashboard/workspaces',
                 onContextMenu: function (e, node) {
                     e.preventDefault();
                     switch (node.iconCls) {
@@ -49,10 +49,11 @@
         });
 
         $("#btnNovoProjeto").click(function () {
-            var btn = $(this);
-            var position = btn.offset();
-            var h = $(this).height();
-
+            $.post('dashboard/newworkspace', {}, function(data){
+                console.log(data);
+            }, 'json').done(function(){
+                console.log("algo");
+            });
         });
 
     });
