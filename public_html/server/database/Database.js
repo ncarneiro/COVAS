@@ -46,11 +46,15 @@ db.once('open', function () {
         _collaborators: [{type: mongoose.Schema.Types.ObjectId, ref: "User"}]
     });
     workspaceSchema.pre('remove', function (next) {
-        console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaa$$");
-        Database.remove({_workspace: this._id}, function(err){
-            if(err) console.log('erro ao excluir bases');
+        Database.find({_workspace: this._id}, function(err, databases){
+            if(err) console.log('erro ao pesquisar bases para excluir');
+            
+            for(var i=0; i<databases.length; i++){
+                databases[i].remove();
+            }
+            next();
         });
-        next();
+        
     });
     var Workspace = mongoose.model('Workspace', workspaceSchema);
 
@@ -64,7 +68,6 @@ db.once('open', function () {
     databaseSchema.pre('remove', function (next) {
         Visualization.remove({_database: this._id}, function(err){
             if(err) console.log('erro ao excluir visualizações');
-            console.log("visualizações dependentes excluidas");
         });
         next();
     });

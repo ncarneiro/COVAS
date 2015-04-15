@@ -108,6 +108,9 @@ exports.User = {
                 attributes: {type: "sharedworkspaces"}
             }
         ];
+    },
+    getItemData: function(itemData, callback){
+        
     }
 };
 
@@ -140,21 +143,11 @@ exports.Workspace = {
                 .exec(function (err, workspace) {
                     if (!err) {
                         if (workspace._owner.email === email) {
-                            console.log("excluir permitido.")
-                            global.database.models.Workspace.remove({
-                                _id: mongoose.Types.ObjectId(id)
-                            }, function (err) {
-                                if (err) {
-                                    callback(false);
-                                } else {
-                                    console.log("excluido");
-                                    callback(true);
-                                }
-                            });
+                            console.log("excluir permitido.");
+                            workspace.remove();
+                            callback(true);
                         }
                     }
                 });
-
-
     }
 };

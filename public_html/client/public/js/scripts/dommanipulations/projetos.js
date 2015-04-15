@@ -9,12 +9,8 @@
 
             $("#treeProjetos").tree({
                 url: '/dashboard/workspaces',
-//                onDblClick: function(node){
-//                    console.log(node.attributes);
-//                },
-                onSelected: function (node) {
-                    selectedTreeItem = node;
-                    console.log(node);
+                onClick: function (node) {
+
                 },
                 onContextMenu: function (e, node) {
                     e.preventDefault();
@@ -62,10 +58,14 @@
                 if (data.status === "ok") {
                     $("#treeProjetos")
                             .tree("reload");
+
+                    //Updatebreadcrumb.
                     //Abrir projeto
                 }
             }, 'json');
         });
+
+
 
         $("#btnExluirProjeto").click(function () {
             var selected = $("#treeProjetos").tree("getSelected");
@@ -79,12 +79,27 @@
                         $("#treeProjetos")
                                 .tree("reload");
                         //Abrir projeto
-                    } else if (data.status === "error"){
+                    } else if (data.status === "error") {
                         console.log("erro");
                     }
                 }, 'json');
             }
         });
+
+        function loadProjeto() {
+            $("#breadcrumbItens").empty();
+            var selected = $("#treeProjetos").tree("getSelected");
+            $.post('dashboard/getitemdata', selected.attributes, function (data) {
+                console.log(data);
+                if (data.status === "ok") {
+                    $("#treeProjetos")
+                            .tree("reload");
+                    //Abrir projeto
+                } else if (data.status === "error") {
+                    console.log("erro");
+                }
+            }, 'json');
+        }
 
     });
 

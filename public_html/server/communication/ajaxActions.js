@@ -14,6 +14,12 @@ exports.registerAjaxActions = function(app){
             res.render("index.html", {user: user});
         });
     });
+    
+    app.post("/dashboard/getitemdata", function(req, res){
+        facade.Workspace.createNewEmptyWorkspace(req.body.name, req.session.email, function(proj, user){
+            res.end(JSON.stringify({status: "ok"}));
+        });
+    });
 
     
     app.post("/dashboard/workspaces", function (req, res) {
