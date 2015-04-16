@@ -4,17 +4,17 @@ var auth = require("./auth/AuthenticationManager.js").authManager;
 
 function runStaticServer(port) {
     var express = require("express");
-    var multer = require('multer');
     var serveStatic = require('serve-static');
     var session = require('express-session');
     var path = require('path');
     var app = express();
-    var done = false;
+
+    
 
     var ejs = require('ejs');
 
     var bodyParser = require('body-parser');
-    
+
     var ajax = require('./communication/ajaxActions.js');
 
     app.set("view engine", "html");
@@ -63,35 +63,10 @@ function runStaticServer(port) {
 
 
     app.use(serveStatic('./../client'));
-    
-    
+
+
     ajax.registerAjaxActions(app);
-    
 
-    app.use(multer({dest: './database/storage/temp',
-        rename: function (fieldname, filename) {
-            return filename + Date.now();
-        },
-        onFileUploadStart: function (file) {
-            console.log(file.originalname + ' is starting ...');
-        },
-        onFileUploadComplete: function (file) {
-            console.log(file.fieldname + ' uploaded to  ' + file.path);
-            done = true;
-        }
-    }));
-
-//app.get('/', function (req, res) {
-//    res.sendFile(__dirname+"/../index.html");
-////    res.end("foi")
-//});
-
-    app.post('/uploadfile', function (req, res) {
-        if (done === true) {
-            console.log(req.files);
-            res.end("File uploaded.");
-        }
-    });
 
     app.listen((port || 3456), function () {
         console.log("Working on port " + (port || 3456));

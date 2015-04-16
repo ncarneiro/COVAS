@@ -99,18 +99,88 @@ exports.User = {
             });
 
         return [
-            {text: "Meus Projetos", state: "closed", children: projetos, 
+            {text: "Meus Projetos", state: "closed", children: projetos,
                 attributes: {type: "myworkspaces"}
             },
-            {text: "Projetos Compartilhados", 
-                state: "closed", 
+            {text: "Projetos Compartilhados",
+                state: "closed",
                 children: projetosCompartilhados,
                 attributes: {type: "sharedworkspaces"}
             }
         ];
     },
-    getItemData: function(itemData, callback){
-        
+    getItemData: function (itemData, userEmail, callback) {
+
+        var returnData = {};
+        itemData.id = mongoose.Types.ObjectId(itemData.id);
+        switch (itemData.type) {
+            case "myworkspaces":
+                global.database.models.User
+                        .findOne({email: userEmail})
+                        .populate("_workspaces", "name _id")
+                        .exec(function (err, user) {
+                            if (err) {
+                                console.log("erro ao buscar usuário.");
+                            } else {
+                                returnData.itens = [];
+                                Array.prototype.push.apply(returnData.itens, user._workspaces);
+                                returnData.breadcrumb = [];
+                                returnData.name = "Meus Projetos";
+                                callback(returnData);
+                            }
+                        });
+                break;
+            case "workspace":
+                global.database.models.Workspace
+                        .findOne({_id: itemData.id})
+                        .populate("_databases", "name _id")
+                        .exec(function (err, workspace) {
+                            if (err) {
+                                console.log("erro ao buscar usuário.");
+                            } else {
+                                returnData.itens = [];
+                                Array.prototype.push.apply(returnData.itens, workspace._databases);
+                                returnData.breadcrumb = ["Meus Projetos"];
+                                returnData.name = workspace.name;
+                                callback(returnData);
+                            }
+                        });
+                break;
+            case "database":
+                global.database.models.Database
+                        .findOne({_id: itemData.id})
+                        .populate("_visualizations", "name _id")
+                        .populate("_workspace", "name")
+                        .exec(function (err, database) {
+                            if (err) {
+                                console.log("erro ao buscar usuário.");
+                            } else {
+                                returnData.itens = [];
+                                Array.prototype.push.apply(returnData.itens, database._visualizations);
+                                returnData.breadcrumb = ["Meus Projetos", database._workspace.name];
+                                returnData.name = database.name;
+                                callback(returnData);
+                            }
+                        });
+                break;
+            case "visualization":
+                global.database.models.Visualization
+                        .findOne({_id: itemData.id})
+                        .populate("_database", "name _id")
+                        .populate("_workspace", "name _id")
+                        .exec(function (err, vis) {
+                            if (err) {
+                                console.log("erro ao buscar usuário.");
+                            } else {
+                                returnData.itens = [];
+                                //implementar histórico da visualização.
+                                returnData.breadcrumb = ["Meus Projetos", vis._workspace.name, vis._database.name];
+                                returnData.name = vis.name;
+                                callback(returnData);
+                            }
+                        });
+                break;
+        }
     }
 };
 
@@ -147,6 +217,35 @@ exports.Workspace = {
                             workspace.remove();
                             callback(true);
                         }
+                    }
+                });
+    }
+};
+
+exports.Database = {
+    createNewDatabase: function (name, dataDir, workspaceId, userEmail, callback) {
+        global.database.models.Workspace
+                .findOne({_id:  mongoose.Types.ObjectId(workspaceId)})
+                .populate("_owner", "email")
+                .exec(function (err, workspace) {
+                    if (!err && workspace._owner.email === userEmail) {
+                        
+                        var database = new global.database.models.Database({
+                            name: name,
+                            _workspace: workspace._id,
+                            dataDir: dataDir
+                        });
+                        workspace._databases.push(database._id);
+                        database.save(function(err){
+                            if(!err){
+                                workspace.save(function(err){
+                                     if(!err){
+                                         console.log("dois workspaces salvos");
+                                         callback(true);
+                                     }
+                                });
+                            }
+                        });
                     }
                 });
     }
