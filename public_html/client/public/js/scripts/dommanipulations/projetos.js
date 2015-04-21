@@ -5,6 +5,8 @@
 
     $(document).ready(function () {
 
+        var selectedId;
+
         $("#btnProjetos").click(function () {
 
             $("#treeProjetos").tree({
@@ -47,6 +49,48 @@
                             }
                     }
 
+                },
+                onLoadSuccess: function () {
+                    var selected = $("#treeProjetos").tree("find", selectedId);
+                    if (selected) {
+                        $("#treeProjetos").tree("select", selected.target);
+
+                        $.post('dashboard/getitemdata', selected.attributes, function (data) {
+                            //Atuliza o breadcrumb
+                            var bread = $("#breadcrumbItens").empty();
+                            for (var i = 0; i < data.breadcrumb.length; i++) {
+                                bread
+                                        .append($("<li></li>")
+                                                .append($("<a></a>", {
+                                                    text: data.breadcrumb[i],
+                                                    href: "javascript: void(0)"
+
+                                                })));
+                            }
+                            bread.append($("<li></li>", {
+                                text: data.name
+                            }));
+
+                            var container = $("#divItensContainer").empty();
+                            for (var i = 0; i < data.itens.length; i++) {
+                                container
+                                        .append($("<div></div>", {
+                                            "data-id": data.itens[i].id
+                                        })
+                                                .append($("<img></img>", {
+                                                    alt: "itemImage",
+                                                    "data-id": data.itens[i].id,
+                                                    src: "image/database.png"
+                                                }))
+                                                .append($("<br>"))
+                                                .append($("<span></span>", {
+                                                    text: data.itens[i].name,
+                                                    class: "itemName",
+                                                    "data-id": data.itens[i].id
+                                                })));
+                            }
+                        }, 'json');
+                    }
                 }
             });
             $('#windowFiles').window('open');
@@ -56,8 +100,6 @@
         $("#btnNovoProjeto").click(function () {
             $.post('dashboard/newworkspace', {name: "Novo Projeto"}, function (data) {
                 if (data.status === "ok") {
-                    $("#treeProjetos")
-                            .tree("reload");
                     loadSelectedItem();
                 }
             }, 'json');
@@ -91,7 +133,6 @@
             var selected = $("#treeProjetos").tree("getSelected");
             $("#hiddenItemId").val(selected.attributes.id);
             $("#hiddenItemType").val(selected.attributes.type);
-            console.log(selected.attributes);
             var formData = new FormData(this);
             if (selected.attributes.id) {
 
@@ -128,44 +169,23 @@
             }
         });
 
+
+        $("#btnNovaVisaoScatterPlot").click(function () {
+            var selected = $("#treeProjetos").tree("getSelected");
+            var params = selected.attributes;
+            params.technique = "scatterplot";
+            $.post('dashboard/addvisao', params, function (data) {
+                console.log(data);
+                loadSelectedItem();
+            });
+        });
+
         function loadSelectedItem() {
 
-            var selected = $("#treeProjetos").tree("getSelected");
-            $.post('dashboard/getitemdata', selected.attributes, function (data) {
-                //Atuliza o breadcrumb
-                var bread = $("#breadcrumbItens").empty();
-                for (var i = 0; i < data.breadcrumb.length; i++) {
-                    bread
-                            .append($("<li></li>")
-                                    .append($("<a></a>", {
-                                        text: data.breadcrumb[i],
-                                        href: "javascript: void(0)"
+            selectedId = $("#treeProjetos").tree("getSelected").id;
+            $("#treeProjetos").tree("reload");
+//            }, 1000);
 
-                                    })));
-                }
-                bread.append($("<li></li>", {
-                    text: data.name
-                }));
-//                console.log(data.itens);
-                var container = $("#divItensContainer").empty();
-                for (var i = 0; i < data.itens.length; i++) {
-                    container
-                            .append($("<div></div>", {
-                                "data-id": data.itens[i].id
-                            })
-                                    .append($("<img></img>", {
-                                        alt: "itemImage",
-                                        "data-id": data.itens[i].id,
-                                        src: "image/database.png"
-                                    }))
-                                    .append($("<br>"))
-                                    .append($("<span></span>", {
-                                        text: data.itens[i].name,
-                                        class: "itemName",
-                                        "data-id": data.itens[i].id
-                                    })));
-                }
-            }, 'json');
         }
 
         function progressHandlingFunction(e) {

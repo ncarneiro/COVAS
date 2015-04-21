@@ -69,14 +69,24 @@ db.once('open', function () {
         Visualization.remove({_database: this._id}, function(err){
             if(err) console.log('erro ao excluir visualizações');
         });
+        //Excluir tbm o arquivo da pasta do usuário.
         next();
+    });
+    databaseSchema.plugin(deepPopulate, {
+        whitelist: [
+            '_workspace',
+            '_workspace._owner',
+            '_workspace._collaborators'
+        ]
     });
     var Database = mongoose.model('Database', databaseSchema);
 
 
     var visualizationSchema = mongoose.Schema({
         name: String,
-        state: String,
+        state: mongoose.Schema.Types.Mixed,
+        technique: String,
+        history: [mongoose.Schema.Types.Mixed],
         _database: {type: mongoose.Schema.Types.ObjectId, ref: "Database"},
         _workspace: {type: mongoose.Schema.Types.ObjectId, ref: "Workspace"}
     });

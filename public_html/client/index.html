@@ -81,6 +81,8 @@ and open the template in the editor.
                 overflow-y: hidden;
                 text-align: center;
                 border: 1px solid transparent;
+                overflow-x: hidden;
+                text-overflow: ellipsis;
             }
             .itemsContainer > div > span.itemName{
                 
@@ -193,10 +195,10 @@ and open the template in the editor.
         </div>
 
         <div id="menuDatabases" class="easyui-menu" style="width:160px;">
-            <div>
+            <div id="btnNovaVisaoContainer">
                 <span>Nova Visão</span>
                 <div>
-                    <div>Scatter Plot</div>
+                    <div id="btnNovaVisaoScatterPlot">Scatter Plot</div>
                 </div>
             </div>
             <div class="menu-sep"></div>
@@ -206,6 +208,8 @@ and open the template in the editor.
         </div>
 
         <div id="menuVisualizations" class="easyui-menu" style="width:160px;">
+            <div id="btnAbrirVisao">Abrir</div>
+            <div class="menu-sep"></div>
             <div>Alternar Nome</div>
             <div>Clonar Visão</div>
             <div>Excluir Visualização</div>

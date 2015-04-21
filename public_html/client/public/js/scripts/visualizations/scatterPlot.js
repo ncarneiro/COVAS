@@ -5,12 +5,17 @@
  */
 
 
-var ScatterPlot = function (pElement) {
+var ScatterPlot = function (pElement, data, xdata, ydata) {
 
     var parentElement = pElement;
     
     this.forma = "circle";
-
+    
+    this.x_data = xdata;
+    this.y_data = ydata;
+    
+//    this.data = data;
+//continuar daqui!!
     this.data = [{sepalLength:5.1, sepalWidth:3.5, petalLength:1.4, petalWidth:0.2, species: "setosa"},
         {sepalLength:6.1, sepalWidth:3.5, petalLength:6.4, petalWidth:3.2, species: "setosa"},
         {sepalLength:8.1, sepalWidth:2.5, petalLength:4.4, petalWidth:2.2, species: "setosa"},
@@ -21,18 +26,18 @@ var ScatterPlot = function (pElement) {
     this.width = 960 - margin.left - margin.right,
     this.height = 500 - margin.top - margin.bottom;
 
-    this.x = d3.scale.linear().range([0, this.width]);
+    this.x_scale = d3.scale.linear().range([0, this.width]);
 
-    this.y = d3.scale.linear().range([this.height, 0]);
+    this.y_scale = d3.scale.linear().range([this.height, 0]);
 
     this.color = d3.scale.category10();
 
     var xAxis = d3.svg.axis()
-            .scale(this.x)
+            .scale(this.x_scale)
             .orient("bottom");
 
     var yAxis = d3.svg.axis()
-            .scale(this.y)
+            .scale(this.y_scale)
             .orient("left");
 
     this.svg = d3.select(parentElement).append("svg")
@@ -47,10 +52,10 @@ var ScatterPlot = function (pElement) {
 //            d.sepalWidth = +d.sepalWidth;
 //        });
 
-        this.x.domain(d3.extent(this.data, function (d) {
+        this.x_scale.domain(d3.extent(this.data, function (d) {
             return d.sepalWidth;
         })).nice();
-        this.y.domain(d3.extent(this.data, function (d) {
+        this.y_scale.domain(d3.extent(this.data, function (d) {
             return d.sepalLength;
         })).nice();
 
@@ -81,11 +86,24 @@ var ScatterPlot = function (pElement) {
 
 };
 
+ScatterPlot.prototype.setXData = function(propertyName){
+    this.x_data = propertyName;
+};
+ScatterPlot.prototype.getXData = function(){
+    return this.x_data;
+};
+ScatterPlot.prototype.setYData = function(propertyName){
+    this.y_data = propertyName;
+};
+ScatterPlot.prototype.getYData = function(){
+    return this.y_data;
+};
+
 ScatterPlot.prototype.drawPoints = function(forma){
-    this.svg.selectAll(".dot").remove();
-    var temp = this.svg.selectAll(".dot")
-                .data(this.data)
-                .enter();
+    
+    var dots = this.svg.selectAll(".dot");
+    dots.remove();
+    var temp = dots.data(this.data).enter();
         
         var self = this;
         if(this.forma === "circle"){
@@ -94,10 +112,10 @@ ScatterPlot.prototype.drawPoints = function(forma){
                 .attr("class", "dot")
                 .attr("r", 3.5)
                 .attr("cx", function (d) {
-                    return self.x(d.sepalWidth);
+                    return self.x_scale(d.sepalWidth);
                 })
                 .attr("cy", function (d) {
-                    return self.y(d.sepalLength);
+                    return self.y_scale(d.sepalLength);
                 })
                 .style("fill", function (d) {
                     return self.color(d.species);
@@ -108,10 +126,10 @@ ScatterPlot.prototype.drawPoints = function(forma){
                 .attr("width", 7)
                 .attr("height", 7)
                 .attr("x", function (d) {
-                    return self.x(d.sepalWidth);
+                    return self.x_scale(d.sepalWidth);
                 })
                 .attr("y", function (d) {
-                    return self.y(d.sepalLength);
+                    return self.y_scale(d.sepalLength);
                 })
                 .style("fill", function (d) {
                     return self.color(d.species);

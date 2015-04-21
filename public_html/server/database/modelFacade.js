@@ -1,8 +1,10 @@
 
 
 var mongoose = require("mongoose");
+var fs = require("fs");
 
-exports.User = {
+
+var User = {
     findUserByEmail: function (email, props, callback) {
 
         if (typeof props === 'string') {
@@ -45,6 +47,7 @@ exports.User = {
             projetos.push({});
             projetos[i].text = usuario._workspaces[i].name;
             projetos[i].iconCls = "icon-project";
+            projetos[i].id = "w_"+usuario._workspaces[i]._id.toString();
             projetos[i].attributes = {
                 id: usuario._workspaces[i]._id.toString(),
                 type: "workspace"
@@ -54,6 +57,7 @@ exports.User = {
                 var baseaux = usuario._workspaces[i]._databases[j];
                 projetos[i].children.push({});
                 projetos[i].children[j].text = baseaux.name;
+                projetos[i].children[j].id = "d_"+baseaux._id.toString();
                 projetos[i].children[j].iconCls = "icon-database";
                 projetos[i].children[j].attributes = {
                     id: baseaux._id.toString(),
@@ -64,6 +68,7 @@ exports.User = {
                 for (var k = 0; k < baseaux._visualizations.length; k++) {
                     projetos[i].children[j].children.push({});
                     projetos[i].children[j].children[k].text = baseaux._visualizations[k].name;
+                    projetos[i].children[j].children[k].id = "v_"+baseaux._visualizations[k]._id.toString();
                     projetos[i].children[j].children[k].iconCls = "icon-visualization";
                     projetos[i].children[j].children[k].attributes = {
                         id: baseaux._visualizations[k]._id.toString(),
@@ -99,11 +104,10 @@ exports.User = {
             });
 
         return [
-            {text: "Meus Projetos", state: "closed", children: projetos,
+            {text: "Meus Projetos", children: projetos,
                 attributes: {type: "myworkspaces"}
             },
             {text: "Projetos Compartilhados",
-                state: "closed",
                 children: projetosCompartilhados,
                 attributes: {type: "sharedworkspaces"}
             }
@@ -183,9 +187,9 @@ exports.User = {
         }
     }
 };
+exports.User = User;
 
-
-exports.Workspace = {
+var Workspace = {
     createNewEmptyWorkspace: function (name, userEmail, callback) {
         global.database.models.User.findOne({email: userEmail}, function (err, user) {
             if (err) {
@@ -221,32 +225,105 @@ exports.Workspace = {
                 });
     }
 };
+exports.Workspace = Workspace;
 
-exports.Database = {
+
+var Database = {
     createNewDatabase: function (name, dataDir, workspaceId, userEmail, callback) {
         global.database.models.Workspace
-                .findOne({_id:  mongoose.Types.ObjectId(workspaceId)})
+                .findOne({_id: mongoose.Types.ObjectId(workspaceId)})
                 .populate("_owner", "email")
                 .exec(function (err, workspace) {
                     if (!err && workspace._owner.email === userEmail) {
-                        
+
                         var database = new global.database.models.Database({
                             name: name,
                             _workspace: workspace._id,
                             dataDir: dataDir
                         });
                         workspace._databases.push(database._id);
-                        database.save(function(err){
-                            if(!err){
-                                workspace.save(function(err){
-                                     if(!err){
-                                         console.log("dois workspaces salvos");
-                                         callback(true);
-                                     }
+                        database.save(function (err) {
+                            if (!err) {
+                                workspace.save(function (err) {
+                                    if (!err) {
+                                        console.log("dois workspaces salvos");
+                                        callback(true);
+                                    }
                                 });
                             }
                         });
                     }
                 });
+    },
+    readDataOf: function (databaseId, callback) {
+        global.database.models.Database.findOne({_id: databaseId}, function (err, database) {
+            if (!err) {
+                fs.readFile(database.dataDir, {encoding: "utf8"}, function (err, data) {
+                    if (!err) {
+                        //Fazer tratamento de dados fora deste módulo.
+                        var lines = data.split("\n"), d = [];
+                        for (var i = 0; i < lines.length; i++) {
+                            if (lines[i].trim() !== "")
+                                d.push(lines[i].split("\t"));
+                        }
+                        callback(d);
+                    } else {
+                        throw err;
+                    }
+                });
+            } else {
+                console.log(err);
+            }
+        });
     }
 };
+exports.Database = Database;
+
+
+var Visualization = {
+    createNewVisualization: function (name, tech, databaseId, userEmail, callback) {
+
+        global.database.models.Database
+                .findOne({_id: mongoose.Types.ObjectId(databaseId)})
+                .deepPopulate("_workspace._owner")
+                .exec(function (err, database) {
+                    if (!err && database._workspace._owner.email === userEmail) {
+
+
+                        Database.readDataOf(database._id, function (data) {
+
+                            var vis = global.database.models.Visualization({
+                                name: name,
+                                technique: tech,
+                                _database: database._id,
+                                _workspace: database._workspace._id,
+                                state: {data: data},
+                                history: []
+                            });
+                            database._visualizations.push(vis._id);
+                            
+                            database.save(function(err){
+                                if(!err){
+                                    vis.save(function(err){
+                                        if(!err){
+                                            callback(true);
+                                        }else{
+                                            console.log(err);
+                                        }
+                                    })
+                                }else{
+                                    console.log(err);
+                                }
+                            });
+                            
+                            
+                        });
+
+                    } else {
+                        console.log("usuário não autenticado");
+                        callback(false);
+                    }
+                });
+    }
+};
+exports.Visualization = Visualization;

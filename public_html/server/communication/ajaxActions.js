@@ -53,6 +53,16 @@ exports.registerAjaxActions = function (app) {
             }
         });
     });
+    
+    app.post("/dashboard/addvisao", function (req, res) {
+        facade.Visualization.createNewVisualization(req.body.technique, req.body.technique, req.body.id, req.session.email, function (suc) {
+            if (suc) {
+                res.end(JSON.stringify({status: "ok"}));
+            } else {
+                res.end(JSON.stringify({status: "error"}));
+            }
+        });
+    });
 
 
     app.use(multer({dest: './database/storage/',
@@ -88,10 +98,10 @@ exports.registerAjaxActions = function (app) {
             var dir = './database/storage/'+req.session.email+'/';
             if (req.body.itemId) {
                 fs.renameSync(dir+req.files.base.name, 
-                dir + req.body.itemId + req.files.base.extension);
+                dir + req.body.itemId + "." +req.files.base.extension);
+                var newdir = dir + req.body.itemId + "." +req.files.base.extension;
                 facade.Database
-                        .createNewDatabase("Nova Base",
-                                './database/storage/' + req.session.email,
+                        .createNewDatabase(req.files.base.originalname, newdir,
                                 req.body.itemId, req.session.email, function () {
                                     res.end(JSON.stringify({status: "ok", des: "File uploaded."}));
                                 });
