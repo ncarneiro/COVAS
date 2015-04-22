@@ -26,7 +26,7 @@
             socket.send(WebSocketManager.TESTE, {forma: "rect"});
         });
        
-        scatterplot = new ScatterPlot("#d3MainVisCanvasTeste");
+        scatterplot = new ScatterPlot("#d3MainVisCanvasTeste", {}, "sepalLength", "sepalWidth");
         scatterplot.drawPoints();
     });
     

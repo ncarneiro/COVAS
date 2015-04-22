@@ -47,7 +47,7 @@ var User = {
             projetos.push({});
             projetos[i].text = usuario._workspaces[i].name;
             projetos[i].iconCls = "icon-project";
-            projetos[i].id = "w_"+usuario._workspaces[i]._id.toString();
+            projetos[i].id = "w_" + usuario._workspaces[i]._id.toString();
             projetos[i].attributes = {
                 id: usuario._workspaces[i]._id.toString(),
                 type: "workspace"
@@ -57,7 +57,7 @@ var User = {
                 var baseaux = usuario._workspaces[i]._databases[j];
                 projetos[i].children.push({});
                 projetos[i].children[j].text = baseaux.name;
-                projetos[i].children[j].id = "d_"+baseaux._id.toString();
+                projetos[i].children[j].id = "d_" + baseaux._id.toString();
                 projetos[i].children[j].iconCls = "icon-database";
                 projetos[i].children[j].attributes = {
                     id: baseaux._id.toString(),
@@ -68,7 +68,7 @@ var User = {
                 for (var k = 0; k < baseaux._visualizations.length; k++) {
                     projetos[i].children[j].children.push({});
                     projetos[i].children[j].children[k].text = baseaux._visualizations[k].name;
-                    projetos[i].children[j].children[k].id = "v_"+baseaux._visualizations[k]._id.toString();
+                    projetos[i].children[j].children[k].id = "v_" + baseaux._visualizations[k]._id.toString();
                     projetos[i].children[j].children[k].iconCls = "icon-visualization";
                     projetos[i].children[j].children[k].attributes = {
                         id: baseaux._visualizations[k]._id.toString(),
@@ -236,20 +236,31 @@ var Database = {
                 .exec(function (err, workspace) {
                     if (!err && workspace._owner.email === userEmail) {
 
-                        var database = new global.database.models.Database({
-                            name: name,
-                            _workspace: workspace._id,
-                            dataDir: dataDir
-                        });
-                        workspace._databases.push(database._id);
-                        database.save(function (err) {
+                        fs.readFile(dataDir, {encoding: "utf8"}, function (err, data) {
                             if (!err) {
-                                workspace.save(function (err) {
+                                
+                                //
+                                var columnsName = data.split("\n")[0].split("\t");
+                                
+                                var database = new global.database.models.Database({
+                                    name: name,
+                                    columnsName: columnsName,
+                                    _workspace: workspace._id,
+                                    dataDir: dataDir
+                                });
+                                workspace._databases.push(database._id);
+                                database.save(function (err) {
                                     if (!err) {
-                                        console.log("dois workspaces salvos");
-                                        callback(true);
+                                        workspace.save(function (err) {
+                                            if (!err) {
+                                                console.log("dois workspaces salvos");
+                                                callback(true);
+                                            }
+                                        });
                                     }
                                 });
+                            } else {
+                                throw err;
                             }
                         });
                     }
@@ -262,9 +273,12 @@ var Database = {
                     if (!err) {
                         //Fazer tratamento de dados fora deste módulo.
                         var lines = data.split("\n"), d = [];
-                        for (var i = 0; i < lines.length; i++) {
-                            if (lines[i].trim() !== "")
-                                d.push(lines[i].split("\t"));
+                        for (var i = 1; i < lines.length; i++) {
+                            if (lines[i].trim() !== ""){
+                                var cols = lines[i].split("\t");
+                                cols[cols.length-1] = cols[cols.length-1].replace("\r","");
+                                d.push(cols);
+                            }
                         }
                         callback(d);
                     } else {
@@ -301,28 +315,51 @@ var Visualization = {
                                 history: []
                             });
                             database._visualizations.push(vis._id);
-                            
-                            database.save(function(err){
-                                if(!err){
-                                    vis.save(function(err){
-                                        if(!err){
+
+                            database.save(function (err) {
+                                if (!err) {
+                                    vis.save(function (err) {
+                                        if (!err) {
                                             callback(true);
-                                        }else{
+                                        } else {
                                             console.log(err);
                                         }
                                     })
-                                }else{
+                                } else {
                                     console.log(err);
                                 }
                             });
-                            
-                            
+
+
                         });
 
                     } else {
                         console.log("usuário não autenticado");
                         callback(false);
                     }
+                });
+    },
+    
+    getVisualization: function(visId, userEmail, callback){
+        global.database.models.Visualization
+                .findOne({_id: mongoose.Types.ObjectId(visId)})
+                .deepPopulate("_workspace._owner")
+                .populate("_database", "columnsName")
+                .exec(function(err, visualization){
+                    if(err) throw err;
+            
+                    if(visualization._workspace._owner.email === userEmail){
+                        var visObj = {
+                            state: visualization.state,
+                            columnsName: visualization._database.columnsName,
+                            name: visualization.name,
+                            technique: visualization.technique
+                        };
+                        callback(visObj);
+                    }else{
+                        callback(false);
+                    }
+                    
                 });
     }
 };

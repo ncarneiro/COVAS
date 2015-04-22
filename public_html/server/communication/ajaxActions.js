@@ -63,6 +63,18 @@ exports.registerAjaxActions = function (app) {
             }
         });
     });
+    
+    
+    app.post("/dashboard/openvisao", function (req, res) {
+        facade.Visualization.getVisualization(req.body.id, req.session.email, function (suc) {
+            if (suc) {
+                console.log(suc);
+                res.end(JSON.stringify(suc));
+            } else {
+                res.end(JSON.stringify({status: "error"}));
+            }
+        });
+    });
 
 
     app.use(multer({dest: './database/storage/',
@@ -75,8 +87,6 @@ exports.registerAjaxActions = function (app) {
         },
         changeDest: function (dest, req, res) {
             var stat = null;
-            console.log("req dest:");
-            console.log(req.body);
             var newdest = dest + req.session.email;
             try {
                 stat = fs.statSync(newdest);
@@ -93,8 +103,6 @@ exports.registerAjaxActions = function (app) {
     app.post('/uploadfile', function (req, res) {
         if (done === true) {
             done = false;
-            console.log(req.files);
-            console.log(req.body);
             var dir = './database/storage/'+req.session.email+'/';
             if (req.body.itemId) {
                 fs.renameSync(dir+req.files.base.name, 

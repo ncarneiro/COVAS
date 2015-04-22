@@ -62,6 +62,8 @@ db.once('open', function () {
     var databaseSchema = mongoose.Schema({
         name: String,
         dataDir: String,
+        columnsName: [String],
+        columnsType: [String],
         _visualizations: [{type: mongoose.Schema.Types.ObjectId, ref: "Visualization"}],
         _workspace: {type: mongoose.Schema.Types.ObjectId, ref: "Workspace"}
     });
@@ -89,6 +91,13 @@ db.once('open', function () {
         history: [mongoose.Schema.Types.Mixed],
         _database: {type: mongoose.Schema.Types.ObjectId, ref: "Database"},
         _workspace: {type: mongoose.Schema.Types.ObjectId, ref: "Workspace"}
+    });
+    visualizationSchema.plugin(deepPopulate, {
+        whitelist: [
+            '_workspace',
+            '_workspace._owner',
+            '_workspace._collaborators'
+        ]
     });
     var Visualization = mongoose.model('Visualization', visualizationSchema);
 

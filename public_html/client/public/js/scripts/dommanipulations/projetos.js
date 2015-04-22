@@ -179,19 +179,36 @@
                 loadSelectedItem();
             });
         });
+        
+        $("#btnAbrirVisao").click(function(){
+            var selected = $("#treeProjetos").tree("getSelected");
+            console.log(selected);
+            $("#windowFiles").window("close");
+//            //codigo temporário
+            $("#d3MainVisCanvasTeste").empty();
+            
+            $.post('dashboard/openvisao', selected.attributes, function (data) {
+                console.log(data);
+                
+            });
+            
+//            var scatterplot = new ScatterPlot("#d3MainVisCanvasTeste", [
+//                [2,4],
+//                [5,3],
+//                [9,1],
+//                [3,9]
+//            ], 0, 1);
+//            scatterplot.drawPoints();
+        });
 
         function loadSelectedItem() {
-
             selectedId = $("#treeProjetos").tree("getSelected").id;
             $("#treeProjetos").tree("reload");
-//            }, 1000);
-
         }
 
         function progressHandlingFunction(e) {
             if (e.lengthComputable) {
                 console.log('carregando ' + e.loaded + ' de ' + e.total);
-//                $('progress').attr({value: e.loaded, max: e.total});
             }
         }
 
