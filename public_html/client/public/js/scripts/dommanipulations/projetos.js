@@ -175,7 +175,6 @@
             var params = selected.attributes;
             params.technique = "scatterplot";
             $.post('dashboard/addvisao', params, function (data) {
-                console.log(data);
                 loadSelectedItem();
             });
         });
@@ -188,17 +187,10 @@
             $("#d3MainVisCanvasTeste").empty();
             
             $.post('dashboard/openvisao', selected.attributes, function (data) {
-                console.log(data);
-                
+                data = JSON.parse(data);
+                ActiveVisManager.openVisualization(data.id, data);
             });
             
-//            var scatterplot = new ScatterPlot("#d3MainVisCanvasTeste", [
-//                [2,4],
-//                [5,3],
-//                [9,1],
-//                [3,9]
-//            ], 0, 1);
-//            scatterplot.drawPoints();
         });
 
         function loadSelectedItem() {

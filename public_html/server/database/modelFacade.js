@@ -238,10 +238,11 @@ var Database = {
 
                         fs.readFile(dataDir, {encoding: "utf8"}, function (err, data) {
                             if (!err) {
-                                
+
                                 //
                                 var columnsName = data.split("\n")[0].split("\t");
-                                
+                                columnsName[columnsName.length - 1].replace("\r", "");
+
                                 var database = new global.database.models.Database({
                                     name: name,
                                     columnsName: columnsName,
@@ -274,12 +275,31 @@ var Database = {
                         //Fazer tratamento de dados fora deste módulo.
                         var lines = data.split("\n"), d = [];
                         for (var i = 1; i < lines.length; i++) {
-                            if (lines[i].trim() !== ""){
+                            if (lines[i].trim() !== "") {
                                 var cols = lines[i].split("\t");
-                                cols[cols.length-1] = cols[cols.length-1].replace("\r","");
+                                cols[cols.length - 1] = cols[cols.length - 1].replace("\r", "");
                                 d.push(cols);
                             }
                         }
+                        for (var j = 0; j < d[0].length; j++) {
+                            var type = "string";
+                            for (var i = 0; i < d.length; i++) {
+                                if (type !== "string") {
+                                    if (!(type === "number" && /^(-)?\d+(\.\d+)?$/.test(d[i][j]))) {
+                                        type = "string";
+                                        break;
+                                    }
+                                } else if (/^(-)?\d+(\.\d+)?$/.test(d[i][j])) {
+                                    type = "number";
+                                }
+                                if (type === "number") {
+                                    for (var i = 0; i < d.length; i++) {
+                                        d[i][j] = parseFloat(d[i][j]);
+                                    }
+                                }
+                            }
+                        }
+
                         callback(d);
                     } else {
                         throw err;
@@ -339,27 +359,28 @@ var Visualization = {
                     }
                 });
     },
-    
-    getVisualization: function(visId, userEmail, callback){
+    getVisualization: function (visId, userEmail, callback) {
         global.database.models.Visualization
                 .findOne({_id: mongoose.Types.ObjectId(visId)})
                 .deepPopulate("_workspace._owner")
                 .populate("_database", "columnsName")
-                .exec(function(err, visualization){
-                    if(err) throw err;
-            
-                    if(visualization._workspace._owner.email === userEmail){
+                .exec(function (err, visualization) {
+                    if (err)
+                        throw err;
+
+                    if (visualization._workspace._owner.email === userEmail) {
                         var visObj = {
+                            id: visualization._id,
                             state: visualization.state,
                             columnsName: visualization._database.columnsName,
                             name: visualization.name,
                             technique: visualization.technique
                         };
                         callback(visObj);
-                    }else{
+                    } else {
                         callback(false);
                     }
-                    
+
                 });
     }
 };

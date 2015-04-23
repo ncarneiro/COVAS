@@ -5,7 +5,7 @@
  */
 
 
-var ScatterPlot = function (pElement, data, xdata, ydata) {
+var ScatterPlot = function (pElement, data, opts) {
 
     var parentElement = pElement;
 
@@ -14,23 +14,17 @@ var ScatterPlot = function (pElement, data, xdata, ydata) {
     var self = this;
 
     this.data = data;
-//continuar daqui!!
-//    this.data = [{sepalLength: 5.1, sepalWidth: 3.5, petalLength: 1.4, petalWidth: 0.2, species: "setosa"},
-//        {sepalLength: 6.1, sepalWidth: 3.5, petalLength: 6.4, petalWidth: 3.2, species: "setosa"},
-//        {sepalLength: 8.1, sepalWidth: 2.5, petalLength: 4.4, petalWidth: 2.2, species: "setosa"},
-//        {sepalLength: 7.1, sepalWidth: 1.5, petalLength: 3.4, petalWidth: 4.2, species: "virginica"},
-//        {sepalLength: 9.1, sepalWidth: 7.5, petalLength: 9.4, petalWidth: 1.2, species: "virginica"}];
 
+    this.columnsName = opts.columnsName;
 
-
-    this.x_data = xdata;
-    this.y_data = ydata;
-    this.color_data = "attr";
+    this.x_data = opts.x_data;
+    this.y_data = opts.y_data;
+    this.color_data = opts.color_data;
 
 
     var margin = {top: 20, right: 20, bottom: 30, left: 40};
-    this.width = 960 - margin.left - margin.right,
-            this.height = 500 - margin.top - margin.bottom;
+    this.width = $(parentElement).innerWidth()-10 - margin.left - margin.right;
+    this.height = $(parentElement).innerHeight()-10 - margin.top - margin.bottom;
 
     this.x_scale = d3.scale.linear().range([0, this.width]);
 
@@ -75,7 +69,12 @@ var ScatterPlot = function (pElement, data, xdata, ydata) {
             .attr("x", this.width)
             .attr("y", -6)
             .style("text-anchor", "end")
-            .text(this.x_data);
+            .text(this.columnsName[this.x_data])
+            .on("click", function(){
+                CustomMenu.showSimpleMenu(self.columnsName, function(id){
+                    
+                }, {});
+            });
 
     this.svg.append("g")
             .attr("class", "y axis")
@@ -86,7 +85,10 @@ var ScatterPlot = function (pElement, data, xdata, ydata) {
             .attr("y", 6)
             .attr("dy", ".71em")
             .style("text-anchor", "end")
-            .text(this.y_data);
+            .text(this.columnsName[this.y_data])
+            .on("click", function(){
+                
+            });
 
 
 
@@ -136,7 +138,7 @@ ScatterPlot.prototype.drawPoints = function (forma) {
                     return self.y_scale(d[self.y_data]);
                 })
                 .style("fill", function (d) {
-                    return self.color(d.species);
+                    return self.color(d[self.color_data]);
                 });
     } else if (this.forma === "rect") {
         temp.append("rect")
@@ -150,7 +152,7 @@ ScatterPlot.prototype.drawPoints = function (forma) {
                     return self.y_scale(d[self.y_data]);
                 })
                 .style("fill", function (d) {
-                    return self.color(d.species);
+                    return self.color(d[self.color_data]);
                 });
     }
 
