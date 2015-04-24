@@ -77,113 +77,141 @@ var User = {
                 }
             }
         }
-        var projetosCompartilhados = [];
+        var projsShared = [];
         for (var i = 0; i < usuario._sharedWorkspaces.length; i++) {
-            projetosCompartilhados.push({});
-            projetosCompartilhados[i].text = usuario._sharedWorkspaces[i].name;
-            projetosCompartilhados[i].iconCls = "icon-project";
-            projetosCompartilhados[i].children = [];
+            projsShared.push({});
+            projsShared[i].text = usuario._sharedWorkspaces[i].name;
+            projsShared[i].iconCls = "icon-project";
+            projsShared[i].id = "w_" + usuario._sharedWorkspaces[i]._id.toString();
+            projsShared[i].attributes = {
+                id: usuario._sharedWorkspaces[i]._id.toString(),
+                type: "workspace"
+            };
+            projsShared[i].children = [];
             for (var j = 0; j < usuario._sharedWorkspaces[i]._databases.length; j++) {
                 var baseaux = usuario._sharedWorkspaces[i]._databases[j];
-                projetosCompartilhados[i].children.push({});
-                projetosCompartilhados[i].children[j].text = baseaux.name;
-                projetosCompartilhados[i].children[j].iconCls = "icon-database";
-                projetosCompartilhados[i].children[j].children = [];
-
+                projsShared[i].children.push({});
+                projsShared[i].children[j].text = baseaux.name;
+                projsShared[i].children[j].iconCls = "icon-database";
+                projsShared[i].children[j].id = "d_" + baseaux._id.toString();
+                projsShared[i].children[j].children = [];
+                projsShared[i].children[j].attributes = {
+                    id: baseaux._id.toString(),
+                    type: "database"
+                };
                 for (var k = 0; k < baseaux._visualizations.length; k++) {
-                    projetosCompartilhados[i].children[j].children.push({});
-                    projetosCompartilhados[i].children[j].children[k].text = baseaux._visualizations[k].name;
-                    projetosCompartilhados[i].children[j].children[k].iconCls = "icon-visualization";
+                    projsShared[i].children[j].children.push({});
+                    projsShared[i].children[j].children[k].text = baseaux._visualizations[k].name;
+                    projsShared[i].children[j].children[k].iconCls = "icon-visualization";
+                    projsShared[i].children[j].children[k].id = "v_" + baseaux._visualizations[k]._id.toString();
+                    projsShared[i].children[j].children[k].attributes = {
+                        id: baseaux._visualizations[k]._id.toString(),
+                        type: "visualization"
+                    };
                 }
             }
         }
-        if (projetosCompartilhados.length === 0)
-            projetosCompartilhados.push({
+        if (projsShared.length === 0)
+            projsShared.push({
+                text: "Vazio",
+                iconCls: "icon-blank"
+            });
+        if (projetos.length === 0)
+            projetos.push({
                 text: "Vazio",
                 iconCls: "icon-blank"
             });
 
         return [
             {text: "Meus Projetos", children: projetos,
-                attributes: {type: "myworkspaces"}
+                id:"0",
+                attributes: {
+                    type: "myworkspaces",
+                    id: "0"
+                }
             },
             {text: "Projetos Compartilhados",
-                children: projetosCompartilhados,
-                attributes: {type: "sharedworkspaces"}
+                children: projsShared, id:"1",
+                attributes: {
+                    type: "sharedworkspaces",
+                    id: "1"
+                }
             }
         ];
     },
     getItemData: function (itemData, userEmail, callback) {
 
         var returnData = {};
-        itemData.id = mongoose.Types.ObjectId(itemData.id);
-        switch (itemData.type) {
-            case "myworkspaces":
-                global.database.models.User
-                        .findOne({email: userEmail})
-                        .populate("_workspaces", "name _id")
-                        .exec(function (err, user) {
-                            if (err) {
-                                console.log("erro ao buscar usuário.");
-                            } else {
-                                returnData.itens = [];
-                                Array.prototype.push.apply(returnData.itens, user._workspaces);
-                                returnData.breadcrumb = [];
-                                returnData.name = "Meus Projetos";
-                                callback(returnData);
-                            }
-                        });
-                break;
-            case "workspace":
-                global.database.models.Workspace
-                        .findOne({_id: itemData.id})
-                        .populate("_databases", "name _id")
-                        .exec(function (err, workspace) {
-                            if (err) {
-                                console.log("erro ao buscar usuário.");
-                            } else {
-                                returnData.itens = [];
-                                Array.prototype.push.apply(returnData.itens, workspace._databases);
-                                returnData.breadcrumb = ["Meus Projetos"];
-                                returnData.name = workspace.name;
-                                callback(returnData);
-                            }
-                        });
-                break;
-            case "database":
-                global.database.models.Database
-                        .findOne({_id: itemData.id})
-                        .populate("_visualizations", "name _id")
-                        .populate("_workspace", "name")
-                        .exec(function (err, database) {
-                            if (err) {
-                                console.log("erro ao buscar usuário.");
-                            } else {
-                                returnData.itens = [];
-                                Array.prototype.push.apply(returnData.itens, database._visualizations);
-                                returnData.breadcrumb = ["Meus Projetos", database._workspace.name];
-                                returnData.name = database.name;
-                                callback(returnData);
-                            }
-                        });
-                break;
-            case "visualization":
-                global.database.models.Visualization
-                        .findOne({_id: itemData.id})
-                        .populate("_database", "name _id")
-                        .populate("_workspace", "name _id")
-                        .exec(function (err, vis) {
-                            if (err) {
-                                console.log("erro ao buscar usuário.");
-                            } else {
-                                returnData.itens = [];
-                                //implementar histórico da visualização.
-                                returnData.breadcrumb = ["Meus Projetos", vis._workspace.name, vis._database.name];
-                                returnData.name = vis.name;
-                                callback(returnData);
-                            }
-                        });
-                break;
+        if (typeof itemData.id === "string" && itemData.id.length === 24) {
+            itemData.id = mongoose.Types.ObjectId(itemData.id);
+            switch (itemData.type) {
+                case "myworkspaces":
+                    global.database.models.User
+                            .findOne({email: userEmail})
+                            .populate("_workspaces", "name _id")
+                            .exec(function (err, user) {
+                                if (err) {
+                                    console.log("erro ao buscar usuário.");
+                                } else {
+                                    returnData.itens = [];
+                                    Array.prototype.push.apply(returnData.itens, user._workspaces);
+                                    returnData.breadcrumb = [];
+                                    returnData.name = "Meus Projetos";
+                                    callback(returnData);
+                                }
+                            });
+                    break;
+                case "workspace":
+                    global.database.models.Workspace
+                            .findOne({_id: itemData.id})
+                            .populate("_databases", "name _id")
+                            .exec(function (err, workspace) {
+                                if (err) {
+                                    console.log("erro ao buscar usuário.");
+                                } else {
+                                    returnData.itens = [];
+                                    Array.prototype.push.apply(returnData.itens, workspace._databases);
+                                    returnData.breadcrumb = ["Meus Projetos"];
+                                    returnData.name = workspace.name;
+                                    callback(returnData);
+                                }
+                            });
+                    break;
+                case "database":
+                    global.database.models.Database
+                            .findOne({_id: itemData.id})
+                            .populate("_visualizations", "name _id")
+                            .populate("_workspace", "name")
+                            .exec(function (err, database) {
+                                if (err) {
+                                    console.log("erro ao buscar usuário.");
+                                } else {
+                                    returnData.itens = [];
+                                    Array.prototype.push.apply(returnData.itens, database._visualizations);
+                                    returnData.breadcrumb = ["Meus Projetos", database._workspace.name];
+                                    returnData.name = database.name;
+                                    callback(returnData);
+                                }
+                            });
+                    break;
+                case "visualization":
+                    global.database.models.Visualization
+                            .findOne({_id: itemData.id})
+                            .populate("_database", "name _id")
+                            .populate("_workspace", "name _id")
+                            .exec(function (err, vis) {
+                                if (err) {
+                                    console.log("erro ao buscar usuário.");
+                                } else {
+                                    returnData.itens = [];
+                                    //implementar histórico da visualização.
+                                    returnData.breadcrumb = ["Meus Projetos", vis._workspace.name, vis._database.name];
+                                    returnData.name = vis.name;
+                                    callback(returnData);
+                                }
+                            });
+                    break;
+            }
         }
     }
 };

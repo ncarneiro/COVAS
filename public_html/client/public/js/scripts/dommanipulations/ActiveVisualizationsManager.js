@@ -15,7 +15,6 @@ var ActiveVisManager = {
                     y_data: 11,
                     color_data: 13
                 });
-                scatterplot.drawPoints();
                 break;
         }
         

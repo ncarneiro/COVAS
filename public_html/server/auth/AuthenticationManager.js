@@ -18,7 +18,7 @@ AuthenticationManager.authenticate = function (email, senha, callback) {
         if(err) {
             console.log(email+" não autenticado");
             callback(false);
-        }else if(user.password === senha){
+        }else if(user && user.password === senha){
             console.log(email+" autenticado");
             callback(true);
         }else{

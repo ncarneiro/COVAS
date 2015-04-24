@@ -54,42 +54,44 @@
                     var selected = $("#treeProjetos").tree("find", selectedId);
                     if (selected) {
                         $("#treeProjetos").tree("select", selected.target);
+                        console.log(selected.id, selectedId);
+                        if (selected.id !== "0" || selected.id !== "1") {
+                            $.post('dashboard/getitemdata', selected.attributes, function (data) {
+                                //Atuliza o breadcrumb
+                                var bread = $("#breadcrumbItens").empty();
+                                for (var i = 0; i < data.breadcrumb.length; i++) {
+                                    bread
+                                            .append($("<li></li>")
+                                                    .append($("<a></a>", {
+                                                        text: data.breadcrumb[i],
+                                                        href: "javascript: void(0)"
 
-                        $.post('dashboard/getitemdata', selected.attributes, function (data) {
-                            //Atuliza o breadcrumb
-                            var bread = $("#breadcrumbItens").empty();
-                            for (var i = 0; i < data.breadcrumb.length; i++) {
-                                bread
-                                        .append($("<li></li>")
-                                                .append($("<a></a>", {
-                                                    text: data.breadcrumb[i],
-                                                    href: "javascript: void(0)"
-
-                                                })));
-                            }
-                            bread.append($("<li></li>", {
-                                text: data.name
-                            }));
-
-                            var container = $("#divItensContainer").empty();
-                            for (var i = 0; i < data.itens.length; i++) {
-                                container
-                                        .append($("<div></div>", {
-                                            "data-id": data.itens[i].id
-                                        })
-                                                .append($("<img></img>", {
-                                                    alt: "itemImage",
-                                                    "data-id": data.itens[i].id,
-                                                    src: "image/database.png"
-                                                }))
-                                                .append($("<br>"))
-                                                .append($("<span></span>", {
-                                                    text: data.itens[i].name,
-                                                    class: "itemName",
-                                                    "data-id": data.itens[i].id
-                                                })));
-                            }
-                        }, 'json');
+                                                    })));
+                                }
+                                bread.append($("<li></li>", {
+                                    text: data.name
+                                }));
+                                //atualiza os itens
+                                var container = $("#divItensContainer").empty();
+                                for (var i = 0; i < data.itens.length; i++) {
+                                    container
+                                            .append($("<div></div>", {
+                                                "data-id": data.itens[i].id
+                                            })
+                                                    .append($("<img></img>", {
+                                                        alt: "itemImage",
+                                                        "data-id": data.itens[i].id,
+                                                        src: "image/database.png"
+                                                    }))
+                                                    .append($("<br>"))
+                                                    .append($("<span></span>", {
+                                                        text: data.itens[i].name,
+                                                        class: "itemName",
+                                                        "data-id": data.itens[i].id
+                                                    })));
+                                }
+                            }, 'json');
+                        }
                     }
                 }
             });
@@ -178,24 +180,25 @@
                 loadSelectedItem();
             });
         });
-        
-        $("#btnAbrirVisao").click(function(){
+
+        $("#btnAbrirVisao").click(function () {
             var selected = $("#treeProjetos").tree("getSelected");
             console.log(selected);
             $("#windowFiles").window("close");
 //            //codigo temporário
             $("#d3MainVisCanvasTeste").empty();
-            
+
             $.post('dashboard/openvisao', selected.attributes, function (data) {
                 data = JSON.parse(data);
                 ActiveVisManager.openVisualization(data.id, data);
             });
-            
+
         });
 
         function loadSelectedItem() {
             selectedId = $("#treeProjetos").tree("getSelected").id;
-            $("#treeProjetos").tree("reload");
+            if(selectedId)
+                $("#treeProjetos").tree("reload");
         }
 
         function progressHandlingFunction(e) {
