@@ -23,8 +23,8 @@ var ScatterPlot = function (pElement, data, opts) {
 
 
     var margin = {top: 20, right: 20, bottom: 30, left: 40};
-    this.width = $(parentElement).innerWidth()-10 - margin.left - margin.right;
-    this.height = $(parentElement).innerHeight()-10 - margin.top - margin.bottom;
+    this.width = $(parentElement).innerWidth() - 10 - margin.left - margin.right;
+    this.height = $(parentElement).innerHeight() - 10 - margin.top - margin.bottom;
 
     this.x_scale = d3.scale.linear().range([0, this.width]);
 
@@ -70,10 +70,10 @@ var ScatterPlot = function (pElement, data, opts) {
             .attr("y", -6)
             .style("text-anchor", "end")
             .text(this.columnsName[this.x_data])
-            .on("click", function(){
-                CustomMenu.showSimpleMenu(self.columnsName, function(id){
-                    
-                }, {});
+            .on("click", function () {
+                CustomMenu.showSimpleMenu(self.columnsName, function (id) {
+                    console.log(id, typeof id);
+                }, {event: d3.event, disabled: self.x_data});
             });
 
     this.svg.append("g")
@@ -86,8 +86,16 @@ var ScatterPlot = function (pElement, data, opts) {
             .attr("dy", ".71em")
             .style("text-anchor", "end")
             .text(this.columnsName[this.y_data])
-            .on("click", function(){
-                
+            .on("click", function () {
+                CustomMenu.showSimpleMenu(self.columnsName, function (id) {
+                    self.y_data = id;
+                    self.y_scale.domain(d3.extent(self.data, function (d) {
+                        return d[self.y_data];
+                    })).nice();
+                    self.dots.attr("cy", function (d) {
+                        return self.y_scale(d[self.y_data]);
+                    });
+                }, {event: d3.event, disabled: self.y_data});
             });
 
 
@@ -125,10 +133,11 @@ ScatterPlot.prototype.drawPoints = function (forma) {
     dots.remove();
     var temp = dots.data(this.data).enter();
 
+    ;
 
     if (this.forma === "circle") {
 
-        temp.append("circle")
+        this.dots = temp.append("circle")
                 .attr("class", "dot")
                 .attr("r", 3.5)
                 .attr("cx", function (d) {
@@ -141,7 +150,7 @@ ScatterPlot.prototype.drawPoints = function (forma) {
                     return self.color(d[self.color_data]);
                 });
     } else if (this.forma === "rect") {
-        temp.append("rect")
+        this.dots = temp.append("rect")
                 .attr("class", "dot")
                 .attr("width", 7)
                 .attr("height", 7)
@@ -156,6 +165,20 @@ ScatterPlot.prototype.drawPoints = function (forma) {
                 });
     }
 
+    this.svg.select("#legendName").remove();
+    this.svg.append("text")
+            .attr("id", "legendName")
+            .attr("class", "label")
+            .attr("x", this.width - 5)
+            .attr("y", 6)
+            .style("text-anchor", "end")
+            .text(this.columnsName[this.color_data])
+            .on("click", function () {
+                CustomMenu.showSimpleMenu(self.columnsName, function (id) {
+                    console.log(id, typeof id);
+                }, {event: d3.event, disabled: self.color_data});
+            });
+
     var legend = this.svg.selectAll(".legend")
             .data(this.color.domain())
             .enter().append("g")
@@ -165,14 +188,15 @@ ScatterPlot.prototype.drawPoints = function (forma) {
             });
 
     legend.append("rect")
-            .attr("x", this.width - 18)
+            .attr("x", this.width - 10)
+            .attr("y", 12)
             .attr("width", 18)
             .attr("height", 18)
             .style("fill", this.color);
 
     legend.append("text")
-            .attr("x", this.width - 24)
-            .attr("y", 9)
+            .attr("x", this.width - 16)
+            .attr("y", 20)
             .attr("dy", ".35em")
             .style("text-anchor", "end")
             .text(function (d) {
