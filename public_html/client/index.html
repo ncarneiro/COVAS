@@ -111,21 +111,13 @@ and open the template in the editor.
     </head>
     <body>
 
-        <div class="easyui-panel" style="padding:5px;width:100%;">
-            <a href="#" class="easyui-menubutton" data-options="menu:'#mm0',iconCls:'icon-file_manager'">Arquivo</a>
+        <div class="easyui-panel" style="padding:5px 6px 7px 6px;width:100%;">
+            <a id="btnProjetos" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-file_manager'">Arquivo</a>
             <a href="#" class="easyui-menubutton" data-options="menu:'#mm1',iconCls:'icon-edit'">Configurar</a>
             <a href="#" class="easyui-menubutton" data-options="iconCls:'icon-help'">Ajuda</a>
             <a id="menuUsuario" href="/logout" class="easyui-menubutton" data-options="menu:'#mm2'" style="float: right;">
                 <%= user.name %>
             </a>
-        </div>
-
-        <div id="mm0" class="context_menu" style="width:200px;">
-            <div id="btnProjetos" data-options="iconCls:'icon-add_package'">Novo Workspace</div>
-            <div data-options="iconCls:'icon-box_front_open'">Abrir Workspace</div>
-            <div class="menu-sep"></div>
-            <div data-options="iconCls:'icon-database_add'">Nova Base</div>
-            <div data-options="iconCls:'icon-database_edit'">Gerenciar Bases</div>
         </div>
 
         <div id="mm1" class="context_menu" style="width:150px;">
@@ -160,7 +152,7 @@ and open the template in the editor.
 
 
         <div id="windowFiles" class="easyui-window" 
-             title="File Manager" data-options="modal:true,closed:true,iconCls:'icon-save'" 
+             title="Arquivo" data-options="modal:true,closed:true,iconCls:'icon-save'" 
              style="-webkit-user-select: none;width:750px;height:550px;padding:10px;">
 
             <div class="easyui-layout" data-options="fit:true">
@@ -178,7 +170,7 @@ and open the template in the editor.
 
         </div>
         <div id="windowUploadDatabase" class="easyui-window" 
-             title="Upload File" data-options="modal:true,closed:true,iconCls:'icon-save'" 
+             title="Upload da Base" data-options="modal:true,closed:true,iconCls:'icon-save'" 
              style="-webkit-user-select: none;padding:10px;">
 
             <form id="uploadForm"
@@ -194,6 +186,7 @@ and open the template in the editor.
             </form>
 
         </div>
+        <div id="dialogCustom"></div>
         
 
 
@@ -204,7 +197,8 @@ and open the template in the editor.
         <div id="menuWorkspaces" class="easyui-menu" style="width:160px;">
             <div id="btnNovaBase">Nova Base</div>
             <div class="menu-sep"></div>
-            <div>Alterar Nome</div>
+            <div class="btnAlterarNome">Alterar Nome</div>
+            <div id="btnCompartilharProjeto">Compartilhar</div>
             <div id='btnExluirProjeto'>Excluir Projeto</div>
 
         </div>
@@ -217,7 +211,7 @@ and open the template in the editor.
                 </div>
             </div>
             <div class="menu-sep"></div>
-            <div>Alterar Nome</div>
+            <div class="btnAlterarNome">Alterar Nome</div>
             <div>Clonar Base</div>
             <div>Excluir Base</div>
         </div>
@@ -225,7 +219,7 @@ and open the template in the editor.
         <div id="menuVisualizations" class="easyui-menu" style="width:160px;">
             <div id="btnAbrirVisao">Abrir</div>
             <div class="menu-sep"></div>
-            <div>Alternar Nome</div>
+            <div class="btnAlterarNome">Alternar Nome</div>
             <div>Clonar Visão</div>
             <div>Excluir Visualização</div>
         </div>

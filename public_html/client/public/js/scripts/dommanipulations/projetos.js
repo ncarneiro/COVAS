@@ -54,7 +54,6 @@
                     var selected = $("#treeProjetos").tree("find", selectedId);
                     if (selected) {
                         $("#treeProjetos").tree("select", selected.target);
-                        console.log(selected.id, selectedId);
                         if (selected.id !== "0" || selected.id !== "1") {
                             $.post('dashboard/getitemdata', selected.attributes, function (data) {
                                 //Atuliza o breadcrumb
@@ -183,21 +182,72 @@
 
         $("#btnAbrirVisao").click(function () {
             var selected = $("#treeProjetos").tree("getSelected");
-            console.log(selected);
             $("#windowFiles").window("close");
 //            //codigo temporário
             $("#d3MainVisCanvasTeste").empty();
 
             $.post('dashboard/openvisao', selected.attributes, function (data) {
-                data = JSON.parse(data);
                 ActiveVisManager.openVisualization(data.id, data);
-            });
+            }, 'json');
 
+        });
+
+        $(".btnAlterarNome").click(function () {
+            var selected = $("#treeProjetos").tree("getSelected");
+            var tipo = '';
+            //trocar para internacionalização.
+            switch (selected.attributes.type) {
+                case "workspace":
+                    tipo = "o projeto";
+                    break;
+                case "database":
+                    tipo = "a base de dados";
+                    break;
+                case "visualization":
+                    tipo = "a visualização";
+                    break;
+            }
+            CustomDialog.showSimpleInputDialog({
+                title: "Alterar Nome",
+                text: "Digite um novo nome para " + tipo + " e clique em salvar."
+            }, function (confirmed, text) {
+                if (confirmed) {
+                    $.post('dashboard/changename', {id: selected.attributes.id, type: selected.attributes.type, newname: text}, function (data) {
+                        if(data.status === "ok"){
+                            loadSelectedItem();
+                        }
+                    }, 'json');
+                }
+            });
+        });
+        
+        $("#btnCompartilharProjeto").click(function(){
+            var selected = $("#treeProjetos").tree("getSelected");
+            CustomDialog.showSimpleInputDialog({
+                title: "Compartilhar "+selected.text,
+                text: "Digite os emails dos usuários que você deseja compartilhar o projeto "+
+                        selected.text+" separados por vírgula e clique em salvar.",
+                height: 150,
+                width: 350
+            }, function (confirmed, text) {
+                if (confirmed) {
+                    var emails = text.split(",");
+                    //Validar emails antes de enviar solicitação.
+                    $.post('dashboard/shareworkspace', {id: selected.attributes.id, emails: emails}, function (data) {
+                        console.log("mudou");
+                        if(data.status === "ok"){
+                            loadSelectedItem();
+                            console.log("mudou");
+                        }
+                    }, 'json');
+                }
+                console.log(confirmed, text);
+            });
         });
 
         function loadSelectedItem() {
             selectedId = $("#treeProjetos").tree("getSelected").id;
-            if(selectedId)
+            if (selectedId)
                 $("#treeProjetos").tree("reload");
         }
 

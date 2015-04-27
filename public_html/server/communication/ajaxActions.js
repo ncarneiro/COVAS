@@ -53,7 +53,7 @@ exports.registerAjaxActions = function (app) {
             }
         });
     });
-    
+
     app.post("/dashboard/addvisao", function (req, res) {
         facade.Visualization.createNewVisualization(req.body.technique, req.body.technique, req.body.id, req.session.email, function (suc) {
             if (suc) {
@@ -63,8 +63,8 @@ exports.registerAjaxActions = function (app) {
             }
         });
     });
-    
-    
+
+
     app.post("/dashboard/openvisao", function (req, res) {
         facade.Visualization.getVisualization(req.body.id, req.session.email, function (suc) {
             if (suc) {
@@ -73,6 +73,51 @@ exports.registerAjaxActions = function (app) {
                 res.end(JSON.stringify({status: "error"}));
             }
         });
+    });
+
+    app.post("/dashboard/changename", function (req, res) {
+        var t = "";
+        switch (req.body.type) {
+            case "workspace":
+                t = "Workspace";
+                break;
+            case "database":
+                t = "Database";
+                break;
+            case "visualization":
+                t = "Visualization";
+                break;
+        }
+        if (t !== "") {
+            facade[t].update(req.body.id, req.session.email, {
+                name: req.body.newname
+            }, function (done, errorCause) {
+                if (done) {
+                    res.end(JSON.stringify({status: "ok"}));
+                } else {
+                    console.log(errorCause);
+                    res.end(JSON.stringify({status: "error", cause: errorCause}));
+                }
+            });
+        } else {
+            res.end(JSON.stringify({status: "error", cause: "incorrect type"}));
+        }
+
+    });
+    
+    app.post("/dashboard/shareworkspace", function (req, res) {
+        
+        facade.Workspace.shareWorkspace(req.body.id, req.session.email, req.body.emails, function(done, err){
+            if(done){
+                res.end(JSON.stringify({status: "ok"}));
+            }else{
+                console.log(err);
+                res.end(JSON.stringify({status: "error"}));
+            }
+        });
+        
+        
+
     });
 
 
@@ -102,11 +147,11 @@ exports.registerAjaxActions = function (app) {
     app.post('/uploadfile', function (req, res) {
         if (done === true) {
             done = false;
-            var dir = './database/storage/'+req.session.email+'/';
+            var dir = './database/storage/' + req.session.email + '/';
             if (req.body.itemId) {
-                fs.renameSync(dir+req.files.base.name, 
-                dir + req.body.itemId + "." +req.files.base.extension);
-                var newdir = dir + req.body.itemId + "." +req.files.base.extension;
+                fs.renameSync(dir + req.files.base.name,
+                        dir + req.body.itemId + "." + req.files.base.extension);
+                var newdir = dir + req.body.itemId + "." + req.files.base.extension;
                 facade.Database
                         .createNewDatabase(req.files.base.originalname, newdir,
                                 req.body.itemId, req.session.email, function () {
