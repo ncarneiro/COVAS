@@ -1,16 +1,16 @@
 
 
-var auth = require("./auth/AuthenticationManager.js").authManager;
+
+
+
 
 function runStaticServer(port) {
+    var auth = require("./auth/AuthenticationManager.js").authManager;
     var express = require("express");
     var serveStatic = require('serve-static');
     var session = require('express-session');
     var path = require('path');
     var app = express();
-
-    
-
     var ejs = require('ejs');
 
     var bodyParser = require('body-parser');
@@ -44,6 +44,7 @@ function runStaticServer(port) {
             if (authenticate) {
                 req.session.logged = true;
                 req.session.email = req.body.email;
+                req.session.websocketid = makeid();
                 res.redirect('/dashboard');
             } else {
                 res.redirect('/login');
@@ -71,6 +72,16 @@ function runStaticServer(port) {
     app.listen((port || 3456), function () {
         console.log("Working on port " + (port || 3456));
     });
+}
+
+function makeid(){
+    var text = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*(){};:.,<>?/\\|~^`´{}[]'\"+=_-";
+
+    for( var i=0; i < 15; i++ )
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+    return text;
 }
 
 

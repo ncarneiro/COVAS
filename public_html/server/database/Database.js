@@ -33,7 +33,12 @@ db.once('open', function () {
             '_workspaces._databases',
             '_workspaces._owner',
             '_workspaces._collaborators',
-            '_workspaces._databases._visualizations'
+            '_workspaces._databases._visualizations',
+            '_sharedWorkspaces',
+            '_sharedWorkspaces._databases',
+            '_sharedWorkspaces._owner',
+            '_sharedWorkspaces._collaborators',
+            '_sharedWorkspaces._databases._visualizations'
         ]
     });
     var User = mongoose.model('User', userSchema);

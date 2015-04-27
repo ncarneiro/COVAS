@@ -45,6 +45,7 @@ var CustomMenu = {
             top: top,
             left: left
         });
+        
     }
 
 
@@ -56,8 +57,8 @@ var CustomDialog = {
         var dialogOpts = {
             title: options.title || "Custom Dialog",
             modal: typeof options.modal === "boolean" ? options.modal : true,
-            height: options.height || 140,
-            width: options.width || 230,
+            height: options.height || 150,
+            width: options.width || 240,
             onClose: function () {
                 if(!confirmed) callback(false);
                 dialog.dialog("destroy");
@@ -90,7 +91,7 @@ var CustomDialog = {
                         .append(txtInput));
         txtInput.textbox({});
         dialog.dialog("open");
-
+        txtInput.trigger("focus");
     }
 };
 

@@ -66,6 +66,7 @@ exports.registerAjaxActions = function (app) {
 
 
     app.post("/dashboard/openvisao", function (req, res) {
+        console.log(req);
         facade.Visualization.getVisualization(req.body.id, req.session.email, function (suc) {
             if (suc) {
                 res.end(JSON.stringify(suc));

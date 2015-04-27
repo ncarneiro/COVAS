@@ -69,8 +69,7 @@ var WebSocketManager = function () {
             self.sokets[socket.id] = undefined;
             console.log("usuário " + socket.id + " desconectado.");
         });
-
-
+        
     });
 
 
