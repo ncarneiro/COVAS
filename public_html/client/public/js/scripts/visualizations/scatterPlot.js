@@ -20,6 +20,7 @@ var ScatterPlot = function (pElement, data, opts) {
     this.x_data = opts.x_data;
     this.y_data = opts.y_data;
     this.color_data = opts.color_data;
+    this.onChange = opts.onChange || function(){};
 
 
     var margin = {top: 20, right: 20, bottom: 30, left: 40};
@@ -123,6 +124,7 @@ ScatterPlot.prototype.setXData = function (propertyName) {
             .on("click", function () {
                 CustomMenu.showSimpleMenu(self.columnsName, function (id) {
                     self.setXData(id);
+                    self.onChange({methodName: "setXData", args: [id]});
                 }, {event: d3.event, disabled: self.x_data});
             });
 

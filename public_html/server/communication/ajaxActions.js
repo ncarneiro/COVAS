@@ -16,7 +16,7 @@ exports.registerAjaxActions = function (app) {
 
     app.get("/dashboard", function (req, res) {
         facade.User.findUserByEmail(req.session.email, "name email", function (user) {
-            res.render("index.html", {user: user});
+            res.render("index.html", {user: user, websocketid: req.session.websocketid});
         });
     });
 
@@ -66,12 +66,12 @@ exports.registerAjaxActions = function (app) {
 
 
     app.post("/dashboard/openvisao", function (req, res) {
-        console.log(req);
-        facade.Visualization.getVisualization(req.body.id, req.session.email, function (suc) {
+        facade.Visualization.getVisualization(req.body.id, req.session.email, function (suc, cause) {
             if (suc) {
+                global.socketManager.addInGroup(req.body.id, req.session.email);
                 res.end(JSON.stringify(suc));
             } else {
-                res.end(JSON.stringify({status: "error"}));
+                res.end(JSON.stringify({status: "error", cause: cause}));
             }
         });
     });
@@ -166,7 +166,9 @@ exports.registerAjaxActions = function (app) {
 
     app.get("/logout", function (req, res) {
         req.session.logged = false;
+        global.socketManager.removeLogin(req.session.email);
         req.session.email = undefined;
+        req.session.websocketid = undefined;
         req.session.destroy(function () {
             res.redirect('/login');
         });

@@ -45,6 +45,7 @@ function runStaticServer(port) {
                 req.session.logged = true;
                 req.session.email = req.body.email;
                 req.session.websocketid = makeid();
+                global.socketManager.addLogin(req.session.email, req.session.websocketid);
                 res.redirect('/dashboard');
             } else {
                 res.redirect('/login');

@@ -21,7 +21,8 @@
         require('./staticWebServer.js').runStaticServer();
         
         var socketManager = new WebSocketManager();
-
+        global.socketManager = socketManager;
+        
         //Adiciona a funcão de autenticação do usuário na comunicação via socket.
         socketManager.addFoward(WebSocketManager.AUTH, function (msg) {
             
@@ -35,6 +36,10 @@
         //Função apenas usa o broadcast, mas deve ser desenvolvida outras funcionalidades
         socketManager.addFoward(WebSocketManager.TESTE, function (msg) {
             socketManager.broadcast(WebSocketManager.TESTE, msg);
+        });
+        
+        socketManager.addFoward(WebSocketManager.GROUP, function (msg, id, email) {
+            socketManager.sendToGroup(WebSocketManager.GROUP, msg, id, email);
         });
     });
 

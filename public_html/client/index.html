@@ -24,7 +24,6 @@ and open the template in the editor.
         <script src="public/js/scripts/dommanipulations/ActiveVisualizationsManager.js"></script>
         <script src="public/js/scripts/dommanipulations/CustomUI.js"></script>
         <script src="public/js/scripts/visualizations/scatterPlot.js"></script>
-        <script src="public/js/scripts/mainClient.js"></script>
         <script src="public/js/scripts/dommanipulations/projetos.js"></script>
 
         <style>
@@ -227,6 +226,8 @@ and open the template in the editor.
 
         <div id="d3MainVisCanvasTeste"></div>
 
-
+        <!-- <%= '<input id="inputWebsocketid" value="'+ websocketid +'" type="text">' %> -->
+        <input id="inputWebsocketid" value="<%= websocketid %>" type="hidden">
+        <input id="inputEmail" value="<%= user.email %>" type="hidden">
     </body>
 </html>

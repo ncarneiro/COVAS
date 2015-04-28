@@ -14,6 +14,9 @@ var WebSocketManager = function () {
 
     var self = this;
 
+    self.logins = {};
+    self.groups = {};
+
     //objeto que guarda os encaminhamentos
     self.foward = {};
 
@@ -24,31 +27,20 @@ var WebSocketManager = function () {
     //array contendo os IDs dos usuários
     self.IDs = [];
     //hash contendo os sockets dos usuários correlacionados com os ids.
-    self.sokets = {};
+    this.sockets = {};
 
     /*
      * Chama a função quando um cliente se conecta.
      */
     self.wss.on('connection', function (socket) {
 
-
-
-        var aceito = false, id;
-        while (!aceito) {
-            id = Math.floor(Math.random() * 5000000);
-            if (self.IDs.indexOf(id) === -1) {
-                self.IDs.push(id);
-                aceito = true;
+        socket.authenticated = false;
+        setTimeout(function () {
+            if (!socket.authenticated){
+                console.log("timeout");
+                socket.close();
             }
-        }
-         
-        
-        
-        
-        socket.send(JSON.stringify({obj: {id: id}, act: "id"}));
-        socket.id = id;
-        self.sokets[id] = socket;
-        console.log("usuário conectado com id: " + id);
+        }, 30000);
 
 
         /*
@@ -57,19 +49,38 @@ var WebSocketManager = function () {
         socket.on('message', function (message, flags) {
             // Se a mensagem não é binária ela é do tipo String
             if (!flags.binary) {
-                var objMsg = JSON.parse(message);
-                self.foward[objMsg.act](objMsg.obj);
+                if (socket.authenticated) {
+                    var objMsg = JSON.parse(message);
+                    self.foward[objMsg.act](objMsg.obj, objMsg.id, objMsg.email);
+                } else {
+                    if (message.length < 80) {
+                        var objMsg = JSON.parse(message);
+                        if (objMsg.email && objMsg.password &&
+                                self.logins[objMsg.email] === objMsg.password) {
+                            socket.authenticated = true;
+                            socket.id = objMsg.password;
+                            socket.email = objMsg.email;
+                            self.sockets[objMsg.email] = socket;
+                            socket.send(JSON.stringify({act: "auth", obj: true}));
+                            return;
+                        }
+                    }
+                    console.log("socket close");
+                    socket.close();
+                }
+            } else {
+                if (!socket.authenticated) {
+                    socket.close();
+                }
             }
         });
 
         //método chamado quando a conexão com um cliente é encerrada.
         socket.on('close', function () {
             // retira o id do usuário do array de ids.
-            self.IDs.splice(self.IDs.indexOf(socket.id), 1);
-            self.sokets[socket.id] = undefined;
             console.log("usuário " + socket.id + " desconectado.");
         });
-        
+
     });
 
 
@@ -110,6 +121,23 @@ WebSocketManager.prototype.send = function (act, data, id) {
 
 };
 
+WebSocketManager.prototype.sendToGroup = function (act, data, idGroup, exc) {
+    if(exc){
+        for (var i=0; i<this.groups[idGroup].length; i++){
+            if(exc !== this.groups[idGroup][i]){
+                this.sockets[this.groups[idGroup][i]]
+                     .send(JSON.stringify({act: act, obj: data, id: idGroup, email: exc}));
+            }
+        }
+    }else{
+        for (var i=0; i<this.groups[idGroup].length; i++){
+             this.sockets[this.groups[idGroup][i]]
+                     .send(JSON.stringify({act: act, obj: data, id: idGroup}));
+        }
+    }
+    this.groups[idGroup];
+};
+
 
 /**
  * Envia dados para todos os clientes conectados atualmente.
@@ -125,7 +153,52 @@ WebSocketManager.prototype.broadcast = function (act, data) {
     }
 };
 
+WebSocketManager.prototype.addLogin = function (email, password) {
+    if (!this.logins[email]) {
+        this.logins[email] = password;
+        return true;
+    } else {
+        return false;
+    }
+};
 
+WebSocketManager.prototype.removeLogin = function (email) {
+    if (this.logins[email]){
+        //verificar se o socket ainda existe e remove-lo tbm.
+        this.logins[email] = undefined;
+    }
+    return true;
+};
+
+
+WebSocketManager.prototype.addInGroup = function (groupId, email) {
+    if (this.groups[groupId]){
+        for(var i=0; i<this.groups[groupId].length; i++){
+            if(this.groups[groupId][i] === email){
+                return false;
+            }
+        }
+        this.groups[groupId].push(email);
+    }else{
+        this.groups[groupId] = [email];
+    }
+    return true;
+};
+
+WebSocketManager.prototype.removeFromGroup = function (groupId, email) {
+    if (this.groups[groupId]){
+        for(var i=0; i<this.groups[groupId].length; i++){
+            if(this.groups[groupId][i] === email){
+                this.groups[groupId].splice(i, 1);
+                if(this.groups[groupId].length === 0){
+                    this.groups[groupId] = undefined;
+                }
+                return true;
+            }
+        }
+    }
+    return false;
+};
 
 //-----------------------  Constantes ------------------------
 
@@ -133,5 +206,6 @@ WebSocketManager.UPDATE = "upd";
 WebSocketManager.CHAT = "chat";
 WebSocketManager.TESTE = "test";
 WebSocketManager.AUTH = "auth";
+WebSocketManager.GROUP = "group";
 
 exports.WebSocketManager = WebSocketManager;

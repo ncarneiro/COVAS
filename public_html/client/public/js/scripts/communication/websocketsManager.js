@@ -11,16 +11,18 @@
  * @param {string} host nome ou endereço IP do servidor
  * @returns {WebSocketManager} 
  */
-var WebSocketManager = function(host){
+var WebSocketManager = function(host, email, id){
     
     var self = this;
     self.socket = new WebSocket("ws://" + host + ":" + 6661);
     
     //objeto que guarda os encaminhamentos
     self.foward = {};
-    self.id;
+    self.id = id;
+    self.email = email;
     self.socket.onopen = function() {
         console.log("conexão aberta");
+        self.socket.send(JSON.stringify({email: email, password: id}));
     };
         
     //método chamado quando ocorre um erro no socket de comunicação com servidor.
@@ -34,12 +36,7 @@ var WebSocketManager = function(host){
     
     self.socket.onmessage = function(e) {
         var objMsg = JSON.parse(e.data);
-        self.foward[objMsg.act](objMsg.obj);
-    };
-    
-    self.foward["id"] = function(obj){
-        self.id 
-                = obj.id;
+        self.foward[objMsg.act](objMsg.obj, objMsg.email, objMsg.id);
     };
     
 };
@@ -83,14 +80,20 @@ WebSocketManager.prototype.isReady = function(){
  */
 WebSocketManager.prototype.send = function(act, data){
     var self = this;
-    this.socket.send(JSON.stringify({id:self.id, act:act, obj:data}));
-    
+    this.socket.send(JSON.stringify({email:self.email, act:act, obj:data}));
+};
+
+WebSocketManager.prototype.sendToGroup = function(act, data, idGroup){
+    var self = this;
+    this.socket.send(JSON.stringify({id: idGroup, email:self.email, act:act, obj:data}));
 };
 
 
 WebSocketManager.UPDATE = "upd";
 WebSocketManager.CHAT = "chat";
 WebSocketManager.TESTE = "test";
+WebSocketManager.AUTH = "auth";
+WebSocketManager.GROUP = "group";
 
 
 

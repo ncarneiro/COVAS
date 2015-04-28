@@ -530,7 +530,7 @@ var Visualization = {
                                         } else {
                                             console.log(err);
                                         }
-                                    })
+                                    });
                                 } else {
                                     console.log(err);
                                 }
@@ -548,25 +548,27 @@ var Visualization = {
     getVisualization: function (visId, userEmail, callback) {
         global.database.models.Visualization
                 .findOne({_id: mongoose.Types.ObjectId(visId)})
-                .deepPopulate("_workspace._owner")
+                .deepPopulate("_workspace._owner _workspace._collaborators")
                 .populate("_database", "columnsName")
-                .exec(function (err, visualization) {
-                    if (err)
-                        throw err;
-
-                    if (visualization._workspace._owner.email === userEmail) {
-                        var visObj = {
-                            id: visualization._id,
-                            state: visualization.state,
-                            columnsName: visualization._database.columnsName,
-                            name: visualization.name,
-                            technique: visualization.technique
-                        };
-                        callback(visObj);
+                .exec(function (err, vis) {
+                    if (err) {
+                        callback(false, "não autorizado");
                     } else {
-                        callback(false);
-                    }
+                        if (vis._workspace._owner.email === userEmail
+                                || vis._workspace._collaborators.searchProperty("email", userEmail) >= 0) {
 
+                            var visObj = {
+                                id: vis._id,
+                                state: vis.state,
+                                columnsName: vis._database.columnsName,
+                                name: vis.name,
+                                technique: vis.technique
+                            };
+                            callback(visObj);
+                        } else {
+                            callback(false, "não autorizado");
+                        }
+                    }
                 });
     },
     update: function (id, userEmail, attrs, callback) {
