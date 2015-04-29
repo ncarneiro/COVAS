@@ -36,7 +36,7 @@ var WebSocketManager = function () {
 
         socket.authenticated = false;
         setTimeout(function () {
-            if (!socket.authenticated){
+            if (!socket.authenticated) {
                 console.log("timeout");
                 socket.close();
             }
@@ -78,7 +78,9 @@ var WebSocketManager = function () {
         //método chamado quando a conexão com um cliente é encerrada.
         socket.on('close', function () {
             // retira o id do usuário do array de ids.
-            console.log("usuário " + socket.id + " desconectado.");
+            console.log("usuário " + socket.email + " desconectado.");
+            self.removeFromAllGroups(socket.email);
+            self.sockets[socket.email] = undefined;
         });
 
     });
@@ -122,17 +124,23 @@ WebSocketManager.prototype.send = function (act, data, id) {
 };
 
 WebSocketManager.prototype.sendToGroup = function (act, data, idGroup, exc) {
-    if(exc){
-        for (var i=0; i<this.groups[idGroup].length; i++){
-            if(exc !== this.groups[idGroup][i]){
+    if (exc) {
+        for (var i = 0; i < this.groups[idGroup].length; i++) {
+            if (exc !== this.groups[idGroup][i]) {
+//                if(this.sockets[this.groups[idGroup][i]]){
+//                    
+//                }
+                for (var prop in this.sockets[this.groups[idGroup][i]]) {
+                    console.log(prop, typeof this.sockets[this.groups[idGroup][i]][prop]);
+                }
                 this.sockets[this.groups[idGroup][i]]
-                     .send(JSON.stringify({act: act, obj: data, id: idGroup, email: exc}));
+                        .send(JSON.stringify({act: act, obj: data, id: idGroup, email: exc}));
             }
         }
-    }else{
-        for (var i=0; i<this.groups[idGroup].length; i++){
-             this.sockets[this.groups[idGroup][i]]
-                     .send(JSON.stringify({act: act, obj: data, id: idGroup}));
+    } else {
+        for (var i = 0; i < this.groups[idGroup].length; i++) {
+            this.sockets[this.groups[idGroup][i]]
+                    .send(JSON.stringify({act: act, obj: data, id: idGroup}));
         }
     }
     this.groups[idGroup];
@@ -163,7 +171,7 @@ WebSocketManager.prototype.addLogin = function (email, password) {
 };
 
 WebSocketManager.prototype.removeLogin = function (email) {
-    if (this.logins[email]){
+    if (this.logins[email]) {
         //verificar se o socket ainda existe e remove-lo tbm.
         this.logins[email] = undefined;
     }
@@ -172,25 +180,25 @@ WebSocketManager.prototype.removeLogin = function (email) {
 
 
 WebSocketManager.prototype.addInGroup = function (groupId, email) {
-    if (this.groups[groupId]){
-        for(var i=0; i<this.groups[groupId].length; i++){
-            if(this.groups[groupId][i] === email){
+    if (this.groups[groupId]) {
+        for (var i = 0; i < this.groups[groupId].length; i++) {
+            if (this.groups[groupId][i] === email) {
                 return false;
             }
         }
         this.groups[groupId].push(email);
-    }else{
+    } else {
         this.groups[groupId] = [email];
     }
     return true;
 };
 
 WebSocketManager.prototype.removeFromGroup = function (groupId, email) {
-    if (this.groups[groupId]){
-        for(var i=0; i<this.groups[groupId].length; i++){
-            if(this.groups[groupId][i] === email){
+    if (this.groups[groupId]) {
+        for (var i = 0; i < this.groups[groupId].length; i++) {
+            if (this.groups[groupId][i] === email) {
                 this.groups[groupId].splice(i, 1);
-                if(this.groups[groupId].length === 0){
+                if (this.groups[groupId].length === 0) {
                     this.groups[groupId] = undefined;
                 }
                 return true;
@@ -198,6 +206,22 @@ WebSocketManager.prototype.removeFromGroup = function (groupId, email) {
         }
     }
     return false;
+};
+
+WebSocketManager.prototype.removeFromAllGroups = function (email) {
+    for (var groupId in this.groups) {
+        if (this.groups[groupId]) {
+            for (var i = 0; i < this.groups[groupId].length; i++) {
+                if (this.groups[groupId][i] === email) {
+                    this.groups[groupId].splice(i, 1);
+                    if (this.groups[groupId].length === 0) {
+                        this.groups[groupId] = undefined;
+                        break;
+                    }
+                }
+            }
+        }
+    }
 };
 
 //-----------------------  Constantes ------------------------

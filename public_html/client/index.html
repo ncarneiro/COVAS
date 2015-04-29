@@ -95,7 +95,7 @@ and open the template in the editor.
                 border: 1px solid lightsteelblue;
             }
             
-            #d3MainVisCanvasTeste{
+            #mainVisCanvas{
                 position: absolute;
                 top: 42px;
                 bottom: 0px;
@@ -111,9 +111,9 @@ and open the template in the editor.
     <body>
 
         <div class="easyui-panel" style="padding:5px 6px 7px 6px;width:100%;">
-            <a id="btnProjetos" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-file_manager'">Arquivo</a>
-            <a href="#" class="easyui-menubutton" data-options="menu:'#mm1',iconCls:'icon-edit'">Configurar</a>
-            <a href="#" class="easyui-menubutton" data-options="iconCls:'icon-help'">Ajuda</a>
+            <a id="btnProjetos" href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-file_manager'">Arquivo</a>
+            <a href="javascript:void(0)" class="easyui-menubutton" data-options="menu:'#mm1',iconCls:'icon-edit'">Configurar</a>
+            <a href="javascript:void(0)" class="easyui-menubutton" data-options="iconCls:'icon-help'">Ajuda</a>
             <a id="menuUsuario" href="/logout" class="easyui-menubutton" data-options="menu:'#mm2'" style="float: right;">
                 <%= user.name %>
             </a>
@@ -224,9 +224,9 @@ and open the template in the editor.
         </div>
 
 
-        <div id="d3MainVisCanvasTeste"></div>
+        <div id="mainVisCanvas"></div>
 
-        <!-- <%= '<input id="inputWebsocketid" value="'+ websocketid +'" type="text">' %> -->
+        
         <input id="inputWebsocketid" value="<%= websocketid %>" type="hidden">
         <input id="inputEmail" value="<%= user.email %>" type="hidden">
     </body>

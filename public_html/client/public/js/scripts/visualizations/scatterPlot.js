@@ -73,6 +73,7 @@ var ScatterPlot = function (pElement, data, opts) {
             .on("click", function () {
                 CustomMenu.showSimpleMenu(self.columnsName, function (id) {
                     self.setColorData(id);
+                    self.onChange({methodName: "setColorData", args: [id]});
                 }, {event: d3.event, disabled: self.color_data});
             });
 
@@ -180,10 +181,9 @@ ScatterPlot.prototype.setYData = function (propertyName) {
             .on("click", function () {
                 CustomMenu.showSimpleMenu(self.columnsName, function (id) {
                     self.setYData(id);
+                    self.onChange({methodName: "setYData", args: [id]});
                 }, {event: d3.event, disabled: self.y_data});
             });
-
-
 
     self.dots.attr("cy", function (d) {
         return self.y_scale(d[self.y_data]);

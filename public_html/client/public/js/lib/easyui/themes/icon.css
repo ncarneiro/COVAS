@@ -64,6 +64,9 @@
 .icon-lock{
 	background:url('icons/lock.png') no-repeat center center;
 }
+.icon-more{
+	background:url('icons/more.png') no-repeat center center;
+}
 
 
 .icon-mini-add{
@@ -91,9 +94,6 @@
 .icon-large-chart{
 	background:url('icons/large_chart.png') no-repeat center center;
 }
-
-
-
 
 
 .icon-file_manager{
@@ -133,4 +133,22 @@
 }
 .icon-visualization{
 	background:url('icons/bar_chart.png') no-repeat center center;
+}
+.icon-edit2{
+	background:url('icons/pencil_2.png') no-repeat center center;
+}
+.icon-filter2{
+	background:url('icons/filter_2.png') no-repeat center center;
+}
+.icon-zoom{
+	background:url('icons/zoom.png') no-repeat center center;
+}
+.icon-tooltip-baloon{
+	background:url('icons/tooltip_baloon.png') no-repeat center center;
+}
+.icon-eye{
+	background:url('icons/eye.png') no-repeat center center;
+}
+.icon-close{
+    background:url('icons/cross.png') no-repeat center center;
 }
